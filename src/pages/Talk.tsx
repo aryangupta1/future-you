@@ -22,7 +22,7 @@ function SummaryPreview({ includeStress }: { includeStress: boolean }) {
 
   const Section = ({ title, items }: { title: string; items: string[] }) => (
     <div>
-      <h3 className="text-[13px] font-semibold uppercase tracking-wide text-accent">{title}</h3>
+      <h3 className="text-[12px] font-semibold tracking-wide text-accent uppercase">{title}</h3>
       {items.length ? (
         <ul className="mt-1.5 list-disc space-y-1 pl-5 text-[15px] text-neutral-900">
           {items.map((t) => (
@@ -49,7 +49,7 @@ function TealHeading({ children }: { children: string }) {
   return (
     <div className="flex items-center gap-3">
       <AdviserAvatar size={44} />
-      <h1 className="text-[26px] font-semibold tracking-tight sm:text-[28px]">{children}</h1>
+      <h1 className="display text-[36px] sm:text-[40px]">{children}</h1>
     </div>
   );
 }
@@ -64,16 +64,16 @@ export function TalkConsent() {
       <TealHeading>{handover.title}</TealHeading>
       <p className="mt-4 text-[16px] leading-relaxed text-neutral-700">{handover.intro}</p>
 
-      <section className="mt-6 rounded-2xl border-2 border-accent/40 bg-accent-tint/50 p-5" aria-label={handover.summaryTitle}>
-        <h2 className="mb-4 text-[17px] font-semibold">{handover.summaryTitle}</h2>
+      <section className="card mt-6 !bg-accent-tint p-5" aria-label={handover.summaryTitle}>
+        <h2 className="display mb-4 text-[26px]">{handover.summaryTitle}</h2>
         <SummaryPreview includeStress={includeStress} />
         {mentionedStress && (
-          <label className="mt-5 flex cursor-pointer items-start gap-3 border-t border-accent/20 pt-4 text-[15px]">
+          <label className="mt-5 flex cursor-pointer items-start gap-3 border-t border-ink/20 pt-4 text-[15px]">
             <input
               type="checkbox"
               checked={includeStress}
               onChange={(e) => setIncludeStress(e.target.checked)}
-              className="mt-1 h-4 w-4 accent-[#0f6e6e]"
+              className="mt-1 h-4 w-4 accent-[#075b72]"
             />
             {handover.stressConsent}
           </label>
@@ -146,10 +146,10 @@ export function TalkDetails() {
               <label
                 key={s}
                 className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-[15px] ${
-                  slot === s ? 'border-accent bg-accent-tint' : 'border-neutral-300 hover:border-neutral-950'
+                  slot === s ? 'border-ink bg-accent-fill shadow-hard-sm' : 'border-ink bg-white hover:bg-accent-tint'
                 }`}
               >
-                <input type="radio" name="slot" value={s} checked={slot === s} onChange={() => setSlot(s)} className="accent-[#0f6e6e]" />
+                <input type="radio" name="slot" value={s} checked={slot === s} onChange={() => setSlot(s)} className="accent-[#075b72]" />
                 {s}
               </label>
             ))}
@@ -171,18 +171,18 @@ export function TalkConfirmed() {
 
   return (
     <Page>
-      <div className="rounded-2xl bg-accent p-6 text-white">
-        <p className="flex items-center gap-2 text-[14px] font-medium text-white/85">
+      <div className="card !bg-accent-fill p-6 !shadow-hard-lg">
+        <p className="flex items-center gap-2 text-[14px] font-semibold text-accent-dark">
           <PersonIcon width={16} height={16} /> {handover.confirmedTitle}
         </p>
-        <p className="mt-2 text-[24px] font-semibold leading-tight">{booking.slot}</p>
+        <p className="display mt-2 text-[40px]">{booking.slot}</p>
         <div className="mt-5 flex items-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-ink bg-white">
             <PersonIcon width={24} height={24} />
           </span>
           <div>
             <p className="text-[16px] font-semibold">{handover.adviserName}</p>
-            <p className="text-[14px] text-white/85">{handover.adviserRole}</p>
+            <p className="text-[14px] text-neutral-800">{handover.adviserRole}</p>
           </div>
         </div>
         <p className="mt-5 text-[15px]">
@@ -190,8 +190,8 @@ export function TalkConfirmed() {
         </p>
       </div>
 
-      <section className="mt-6 rounded-2xl border border-neutral-200 p-5">
-        <h2 className="mb-4 text-[17px] font-semibold">The summary they'll read</h2>
+      <section className="mt-6 card p-5">
+        <h2 className="display mb-4 text-[26px]">The summary they'll read</h2>
         <SummaryPreview includeStress={booking.includeStress} />
       </section>
       <V0Note>{handover.mockNote}</V0Note>

@@ -20,6 +20,10 @@ export type AdviserMessage = {
   text: string;
   timeSensitive?: boolean;
   at: string;
+  /** The plan step this reply added, if any. */
+  stepId?: string;
+  /** v0: 'ai' when generated from the conversation, 'scripted' for the fallback. */
+  simulated?: 'ai' | 'scripted';
 };
 
 export type Handover = {
@@ -242,16 +246,18 @@ export const actions = {
     );
   },
 
-  /** Dev/demo: adds the hardcoded adviser reply and its plan step. */
-  simulateAdviserReply() {
+  /** v0: a simulated adviser reply, optionally adding one "From your adviser" plan step. */
+  receiveAdviserReply(text: string, step: PlanStep | undefined, simulated: 'ai' | 'scripted') {
     setState((s) => ({
       ...s,
-      adviserThread: [
-        ...s.adviserThread,
-        { from: 'adviser', text: adviserReply.text, at: new Date().toISOString() },
-      ],
-      clientPlan: withStep(s.clientPlan, adviserReply.step),
+      adviserThread: [...s.adviserThread, { from: 'adviser', text, at: now(), stepId: step?.id, simulated }],
+      clientPlan: step ? withStep(s.clientPlan, { ...step, fromAdviser: true }) : s.clientPlan,
     }));
+  },
+
+  /** Fallback when AI is unavailable: the hardcoded reply and its plan step. */
+  scriptedAdviserReply() {
+    actions.receiveAdviserReply(adviserReply.text, adviserReply.step, 'scripted');
   },
 
   setCorrection(show: boolean) {
@@ -284,10 +290,11 @@ export const actions = {
   },
 
   /**
-   * P1: a payment has landed. Continue the anonymous chat at the check-in node,
-   * as if she had tapped the question herself.
+   * Continue the anonymous chat at a given node, as if she had tapped the
+   * question herself. Used by the landing page's sample questions and the
+   * "A payment just landed" check-in (P1).
    */
-  startCheckIn(question: string, nodeId: string) {
+  startWithQuestion(question: string, nodeId: string) {
     setState((s) => {
       const chat = s.chats.newClient;
       const thread: ThreadEntry[] = [

@@ -16,8 +16,7 @@
 import { sources } from '../src/content/sources.js';
 import { AI_LIMITS, containsFigures, detectDistress, detectPersonalAdvice } from '../src/engine/guardrails.js';
 import type { AiAnswer, AiRequest, AiResponse, AiTurn } from '../src/ai/types.js';
-
-export const AI_MODEL = 'gpt-5-nano';
+import { callStructured } from './openai.js';
 
 type SourceId = keyof typeof sources;
 const SOURCE_IDS = Object.keys(sources) as SourceId[];
@@ -95,14 +94,6 @@ function parseRequest(body: unknown): AiRequest | string {
   return { flow: b.flow, question: b.question.trim(), history };
 }
 
-function outputText(json: any): string | undefined {
-  for (const item of json?.output ?? []) {
-    if (item?.type !== 'message') continue;
-    for (const c of item.content ?? []) if (c?.type === 'output_text') return c.text;
-  }
-  return undefined;
-}
-
 export async function handleChat(body: unknown, apiKey: string | undefined): Promise<{ status: number; data: AiResponse }> {
   const req = parseRequest(body);
   if (typeof req === 'string') return { status: 400, data: { type: 'error', message: req } };
@@ -126,42 +117,18 @@ export async function handleChat(body: unknown, apiKey: string | undefined): Pro
     .filter(Boolean)
     .join('\n\n');
 
-  let res: Response;
-  try {
-    res = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        instructions,
-        input: [
-          ...req.history.map((t) => ({ role: t.role, content: t.text })),
-          { role: 'user', content: req.question },
-        ],
-        reasoning: { effort: 'minimal' },
-        max_output_tokens: 1200,
-        store: false,
-        text: { format: { type: 'json_schema', name: 'advisor_answer', strict: true, schema } },
-      }),
-    });
-  } catch {
-    return { status: 502, data: { type: 'error', message: "Couldn't reach the AI service." } };
-  }
-
-  if (!res.ok) {
-    const detail = await res.text().catch(() => '');
-    console.error(`[ai] OpenAI ${res.status}: ${detail.slice(0, 500)}`);
-    return { status: 502, data: { type: 'error', message: `The AI service returned an error (${res.status}).` } };
-  }
-
-  let answer: ModelAnswer;
-  try {
-    const text = outputText(await res.json());
-    if (!text) throw new Error('empty');
-    answer = JSON.parse(text) as ModelAnswer;
-  } catch {
-    return { status: 502, data: { type: 'error', message: 'The AI returned an answer I could not read.' } };
-  }
+  const result = await callStructured<ModelAnswer>({
+    apiKey,
+    instructions,
+    input: [
+      ...req.history.map((t) => ({ role: t.role, content: t.text })),
+      { role: 'user' as const, content: req.question },
+    ],
+    name: 'advisor_answer',
+    schema,
+  });
+  if (!result.ok) return { status: result.status, data: { type: 'error', message: result.message } };
+  const answer = result.value;
 
   // Guardrail 4: enforce the shape regardless of what the model chose.
   const kind: AiAnswer['kind'] = personal ? 'personalAdvice' : answer.kind;

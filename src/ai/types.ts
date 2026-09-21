@@ -32,3 +32,19 @@ export type AiResponse =
   /** Distress detected: the client shows the pre-written support card, not model text. */
   | { type: 'distress' }
   | { type: 'error'; message: string };
+
+// ---------------------------------------------------------------------------
+// Simulated adviser reply (v0). A stand-in for a real $RUs adviser, generated
+// from the client's messages, their AI chat and their plan.
+
+export type AdviserReplyRequest = {
+  /** The in-app message thread with the adviser, oldest first. */
+  messages: { from: 'client' | 'adviser'; text: string; timeSensitive?: boolean }[];
+  /** The client's recent AI chat, so the adviser can pick up from it. */
+  chat: AiTurn[];
+  plan: { text: string; done?: boolean; fromAdviser?: boolean }[];
+};
+
+export type AdviserReplyResponse =
+  | { type: 'reply'; text: string; step?: { text: string; detail?: string } }
+  | { type: 'error'; message: string };

@@ -27,3 +27,24 @@ Append-only. Add one entry per session at the end of the file: the date, what ch
   - Off-topic replies are fixed text.
   - Replies that quote figures get a note.
 - Tested live: sourced answer, personal-advice hand-off chip, distress support card, off-topic refusal, adviser summary, and `/staff` flags.
+
+## 2026-09-21 (design)
+
+- Restyled the app to the Breezzy Framer template's design system. No new pages.
+  - Tokens in `src/index.css`.
+  - Pill header, lime chat bar, ink outlines, hard shadows, Darker Grotesque headings.
+  - Human-adviser colour moved from teal to sky blue.
+- Checked in Chrome at desktop width and at 390px (via iframes): no horizontal scroll, fonts load.
+
+## 2026-09-21 (main page + adviser AI)
+
+- Rebuilt `/` from the product brief:
+  - Hero, then a real answer preview taken from the content tree.
+  - "Ask something now" sample questions that open the chat at that node.
+  - P1–P5 pain-point cards, "How it works", "Why now" stats, "Your options today" table, and a closing call to action.
+- "Why now" stats checked against primary sources and added to `sources.ts`:
+  - ASFA 2018: 19% of the self-employed have no super, vs 8% of employees.
+  - ASIC 2026: 63% of Gen Z use social media and 18% use AI for money information.
+  - The deck's "1 in 5 reach retirement with no super (ASFA 2023)" isn't what the source says. The page uses the accurate wording.
+- The simulated adviser reply is now AI-generated through `/api/adviser-reply`, with the guardrails listed in the README. Falls back to the scripted reply.
+- Refactored the OpenAI call into `server/openai.ts`. Renamed `actions.startCheckIn` to `startWithQuestion`.

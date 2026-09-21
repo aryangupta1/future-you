@@ -25,7 +25,10 @@ There is no test suite. Verify behaviour in the browser: press **D** for the dev
 
 - **General information only.** Anything that needs the user's own figures goes to a `personalAdvice` node that explains the line and offers a human.
 - **A source on every factual answer.** Every factual claim gets a `// VERIFY` comment above it, and there are no hardcoded caps, rates or thresholds.
-- **The AI discloses itself** before the first question. Teal (`accent`) is reserved for human-adviser moments; the AI is always black or grey.
+- **The AI discloses itself** before the first question.
+- **Design system: Breezzy** (breezzy.framer.ai). Tokens live in `src/index.css` `@theme`: ink outlines, hard shadows (`shadow-hard*`), the `card` and `press` utilities, and `.display` (Darker Grotesque) for large headings with Inter for body text.
+  - Colour roles: lime is the primary action; sky (`accent`, `accent-fill`, `accent-tint`) is reserved for human-adviser moments and never used for the AI; `sun` is for notices.
+  - Prefer the shared `btn.*` and `inputCls` in `src/components/ui.tsx` over new one-off styles.
 - **Distress gets a calm support card**, never crisis-help positioning.
 - **Anonymous by default.** Email or a private link is offered only when saving a plan.
 - **All user-facing copy lives in `src/content/`**, not in components. Keep that separation so a real AI can replace the tree later.

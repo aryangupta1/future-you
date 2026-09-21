@@ -2,13 +2,22 @@ import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { handleChat } from './server/aiChat.js';
+import { handleAdviserReply } from './server/adviserReply.js';
 
-// Serves POST /api/chat during `npm run dev` and `npm run preview`, mirroring
-// the Vercel function in api/chat.ts. The key comes from .env and stays on the
+type Handler = (body: unknown, apiKey: string | undefined) => Promise<{ status: number; data: unknown }>;
+
+// Serves the /api routes during `npm run dev` and `npm run preview`, mirroring
+// the Vercel functions in api/. The key comes from .env and stays on the
 // server (it has no VITE_ prefix, so it is never bundled).
-function aiChatApi(apiKey: string | undefined): Plugin {
+const routes: Record<string, Handler> = {
+  '/api/chat': handleChat,
+  '/api/adviser-reply': handleAdviserReply,
+};
+
+function aiApi(apiKey: string | undefined): Plugin {
   const middleware = (req: any, res: any, next: () => void) => {
-    if (req.url !== '/api/chat') return next();
+    const handler = routes[req.url];
+    if (!handler) return next();
     const send = (status: number, data: unknown) => {
       res.statusCode = status;
       res.setHeader('Content-Type', 'application/json');
@@ -27,12 +36,12 @@ function aiChatApi(apiKey: string | undefined): Plugin {
       } catch {
         /* handled by handleChat */
       }
-      const { status, data } = await handleChat(body, apiKey);
+      const { status, data } = await handler(body, apiKey);
       send(status, data);
     });
   };
   return {
-    name: 'ai-chat-api',
+    name: 'ai-api',
     configureServer: (server) => void server.middlewares.use(middleware),
     configurePreviewServer: (server) => void server.middlewares.use(middleware),
   };
@@ -41,6 +50,6 @@ function aiChatApi(apiKey: string | undefined): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
-    plugins: [react(), tailwindcss(), aiChatApi(env.OPENAI_API_KEY)],
+    plugins: [react(), tailwindcss(), aiApi(env.OPENAI_API_KEY)],
   };
 });

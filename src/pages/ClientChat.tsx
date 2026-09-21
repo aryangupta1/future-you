@@ -8,7 +8,7 @@ import { getState } from '../state/store';
 export function ClientChat() {
   const navigate = useNavigate();
   return (
-    <main>
+    <main className="h-full">
       <h1 className="sr-only">Ask the AI a general question</h1>
       <Chat
         flow={existingClientFlow}
@@ -18,7 +18,7 @@ export function ClientChat() {
           <Link
             to="/dashboard"
             aria-label="Back to my dashboard"
-            className="-ml-2 rounded-full p-2 text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950"
+            className="-ml-1 rounded-full border border-transparent p-1.5 text-ink hover:border-ink hover:bg-white"
           >
             <ArrowLeftIcon width={20} height={20} />
           </Link>

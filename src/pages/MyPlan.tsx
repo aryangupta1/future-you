@@ -16,7 +16,7 @@ export function MyPlan() {
   if (!plan) {
     return (
       <Page>
-        <h1 className="text-[28px] font-semibold tracking-tight">{planPage.title}</h1>
+        <h1 className="display text-[40px]">{planPage.title}</h1>
         <p className="mt-3 text-[16px] text-neutral-700">{planPage.empty}</p>
         <Link to="/chat" className={`${btn.primary} mt-6`}>
           Go to the chat
@@ -29,7 +29,7 @@ export function MyPlan() {
 
   return (
     <Page>
-      <h1 className="text-[28px] font-semibold tracking-tight">{planPage.title}</h1>
+      <h1 className="display text-[40px]">{planPage.title}</h1>
       <p className="mt-2 text-[16px] text-neutral-700">{planPage.intro}</p>
       <p className="mt-4 text-[13px] font-medium text-neutral-600">
         {done} of {plan.steps.length} done
@@ -51,7 +51,7 @@ export function MyPlan() {
           {/* Rule 6: email is optional and only offered after saving a plan. */}
           {!plan.emailDone ? (
             <form
-              className="mt-6 rounded-2xl border border-neutral-200 p-5"
+              className="mt-6 card p-5"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (email.trim()) actions.setPlanEmail(email.trim());
@@ -89,7 +89,7 @@ export function MyPlan() {
               </button>
             </form>
           ) : plan.privateLink ? (
-            <section className="mt-6 rounded-2xl border border-neutral-200 p-5">
+            <section className="mt-6 card p-5">
               <h2 className="text-[16px] font-semibold">{planPage.email.privateLinkTitle}</h2>
               <p className="mt-1 text-[14px] text-neutral-600">{planPage.email.privateLinkBody}</p>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
@@ -115,7 +115,7 @@ export function MyPlan() {
           )}
 
           {/* Feature 5: check-ins follow her income, not the calendar. Opt-in. */}
-          <fieldset className="mt-6 rounded-2xl border border-neutral-200 p-5">
+          <fieldset className="mt-6 card p-5">
             <legend className="px-1 text-[16px] font-semibold">{planPage.checkIns.title}</legend>
             <p className="text-[14px] text-neutral-600">{planPage.checkIns.body}</p>
             <div className="mt-3 space-y-2">
@@ -123,7 +123,7 @@ export function MyPlan() {
                 <label
                   key={o.value}
                   className={`flex cursor-pointer gap-3 rounded-xl border px-4 py-3 ${
-                    plan.checkIns === o.value ? 'border-neutral-950 bg-neutral-50' : 'border-neutral-300 hover:border-neutral-950'
+                    plan.checkIns === o.value ? 'border-ink bg-lime shadow-hard-sm' : 'border-ink bg-white hover:bg-lime-50'
                   }`}
                 >
                   <input

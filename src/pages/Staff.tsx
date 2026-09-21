@@ -30,12 +30,12 @@ export function Staff() {
 
   return (
     <Page wide>
-      <h1 className="text-[28px] font-semibold tracking-tight">{staff.title}</h1>
+      <h1 className="display text-[40px]">{staff.title}</h1>
       <p className="mt-2 text-[16px] leading-relaxed text-neutral-700">{staff.intro}</p>
       <V0Note>{staff.mockNote}</V0Note>
 
       <section aria-labelledby="measures-h" className="mt-8">
-        <h2 id="measures-h" className="text-[17px] font-semibold">
+        <h2 id="measures-h" className="display text-[26px]">
           {staff.measuresTitle}
         </h2>
         <ul className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -43,12 +43,12 @@ export function Staff() {
             const m = staff.measures[key];
             const met = measures[key];
             return (
-              <li key={key} className="rounded-2xl border border-neutral-200 p-4">
+              <li key={key} className="card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <p className="text-[15px] font-semibold">{m.label}</p>
                   <span
                     className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-medium ${
-                      met ? 'bg-neutral-950 text-white' : 'border border-neutral-300 text-neutral-600'
+                      met ? 'border border-ink bg-lime text-ink' : 'border border-ink/40 text-neutral-700'
                     }`}
                   >
                     {met && <CheckIcon width={13} height={13} />}
@@ -66,7 +66,7 @@ export function Staff() {
       <section aria-labelledby="log-h" className="mt-10">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="log-h" className="text-[17px] font-semibold">
+            <h2 id="log-h" className="display text-[26px]">
               {staff.logTitle}
             </h2>
             <p className="mt-1 text-[14px] text-neutral-600">{staff.logIntro}</p>
@@ -83,13 +83,13 @@ export function Staff() {
         </div>
 
         {rows.length === 0 ? (
-          <p className="mt-4 rounded-2xl border border-dashed border-neutral-300 p-5 text-[15px] text-neutral-600">
+          <p className="mt-4 rounded-2xl border border-dashed border-ink/50 p-5 text-[15px] text-neutral-600">
             {flaggedOnly ? 'No flagged exchanges.' : staff.logEmpty}
           </p>
         ) : (
-          <ol className="mt-4 divide-y divide-neutral-200 rounded-2xl border border-neutral-200">
+          <ol className="mt-4 divide-y divide-ink/15 card">
             {rows.map(({ event, outcome }, i) => (
-              <li key={i} className={`px-4 py-3 ${outcome.flagged ? 'bg-neutral-50' : ''}`}>
+              <li key={i} className={`px-4 py-3 ${outcome.flagged ? 'bg-sun-50' : ''}`}>
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-neutral-500">
                   <time dateTime={event.at}>{time(event.at)}</time>
                   {(event.kind === 'chat' || event.kind === 'ai') && <span>· {flowLabel[event.flow]}</span>}

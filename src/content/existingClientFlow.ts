@@ -186,10 +186,14 @@ export const askAdviser = {
   sendLabel: 'Send',
   sentNote: `Sent. ${adviser.firstName} usually replies within 1 business day.`,
   simulateLabel: 'Simulate adviser reply (v0)',
+  typing: `${adviser.firstName} is writing a reply…`,
+  simulatedAiTag: 'Simulated by AI · v0',
+  simulatedScriptTag: 'Scripted demo reply · v0',
+  fallbackNote: 'The AI simulation was unavailable, so this is the scripted demo reply.',
   mockNote: 'v0 mock: messages stay on this device. Nothing is sent.',
 };
 
-/** Hardcoded reply used by "Simulate adviser reply". It adds a plan step. */
+/** Scripted fallback for "Simulate adviser reply" when AI is unavailable. It adds a plan step. */
 export const adviserReply = {
   text: `Hi ${client.firstName}, good question, and good timing. Before we pick an amount I'd like to see your income so far this year and what's already gone into super. I've added a step to your plan. Once I have those, we'll settle on a figure in a 15-minute call.`,
   step: {

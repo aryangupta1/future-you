@@ -131,6 +131,15 @@ export const sources = {
     label: 'Moneysmart: Financial advice costs',
     url: 'https://moneysmart.gov.au/financial-advice/financial-advice-costs',
   },
+  // Landing page "why now" figures. Both checked against the primary source on 21 Sep 2026.
+  asfaSelfEmployed: {
+    label: 'ASFA: Superannuation balances of the self-employed (2018)',
+    url: 'https://www.superannuation.asn.au/wp-content/uploads/2023/09/1803-Superannuation_balances_of_the_self-employed.pdf',
+  },
+  asicGenZ: {
+    label: 'ASIC: Gen Z Financial Behaviours Report (2026)',
+    url: 'https://www.asic.gov.au/about-asic/news-centre/find-a-media-release/2026-releases/26-049mr-asic-urges-gen-z-to-sense-check-money-advice-as-social-media-fuels-riskier-financial-decisions',
+  },
   ndh: { label: 'National Debt Helpline', url: 'https://ndh.org.au' },
   lifeline: { label: 'Lifeline', url: 'https://www.lifeline.org.au' },
 } satisfies Record<string, Source>;

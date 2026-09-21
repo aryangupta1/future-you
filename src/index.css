@@ -1,11 +1,42 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens from the Breezzy Framer template (breezzy.framer.ai):
+ * ink outlines, hard offset shadows, a lime primary, sky and yellow tints,
+ * Darker Grotesque for display type and Inter for everything else.
+ *
+ * Semantics this app layers on top:
+ * - lime   = primary action (the AI side and the app itself)
+ * - accent = a licensed human adviser. Sky fill, deep-blue text. Never used for the AI.
+ * - sun    = notices (corrections, service status, v0 mocks)
+ * All text sits on light fills, so contrast is ink-on-tint (AA or better).
+ */
 @theme {
-  /* One accent, used only for human-adviser moments. #0F6E6E on white = 6.1:1 (AA). */
-  --color-accent: #0f6e6e;
-  --color-accent-dark: #0a5454;
-  --color-accent-tint: #e9f3f3;
+  --color-ink: #0d111b;
+  /* Tailwind's darkest neutral becomes Breezzy ink, so existing classes pick it up. */
+  --color-neutral-950: #0d111b;
+
+  --color-lime: #e4fdc4;
+  --color-lime-strong: #d0f7a0;
+  --color-lime-50: #f7fff0;
+
+  /* Human adviser. #075b72 on white = 7.3:1, on accent-tint = 6.8:1. */
+  --color-accent: #075b72;
+  --color-accent-dark: #04475a;
+  --color-accent-fill: #c3f1fd;
+  --color-accent-tint: #e3f9ff;
+
+  --color-sun: #f1ee83;
+  --color-sun-50: #fdfbc3;
+
+  --shadow-hard-sm: 2px 2px 0 0 #000;
+  --shadow-hard: 4px 4px 0 0 #000;
+  --shadow-hard-lg: 8px 8px 0 0 #000;
+
+  --radius-card: 24px;
+
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Darker Grotesque", Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
 html {
@@ -13,12 +44,42 @@ html {
 }
 
 body {
-  background: #fff;
-  color: #0a0a0a;
+  background: var(--color-lime-50);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Darker Grotesque runs small and tight, so display headings need more size and less leading than Inter. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+}
+
+/* Breezzy's card: white, 1px ink outline, hard shadow. */
+@utility card {
+  background-color: #fff;
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-hard);
+}
+
+/* Pressable elements sink into their shadow. */
+@utility press {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  &:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 0 #000;
+  }
+  &:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 0 #000;
+  }
 }
 
 :focus-visible {
-  outline: 2px solid #0a0a0a;
+  outline: 2px solid var(--color-ink);
   outline-offset: 2px;
 }
 
@@ -38,4 +99,5 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .typing-dot, .fade-up { animation: none; }
+  .press, .press:hover, .press:active { transform: none; transition: none; }
 }

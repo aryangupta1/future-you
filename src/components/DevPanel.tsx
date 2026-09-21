@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { actions, useAppState, type ServiceStatus } from '../state/store';
 import { countAnswers } from '../engine/engine';
+import { simulateAdviserReply } from '../ai/adviser';
 import { newClientFlow } from '../content/newClientFlow';
 
 // Toggle with "D" (or the footer link on a phone). Demo helpers only.
@@ -70,8 +71,8 @@ export function DevPanel() {
           type="button"
           className={item}
           onClick={() => {
-            actions.simulateAdviserReply();
             navigate('/ask-adviser');
+            void simulateAdviserReply();
           }}
         >
           Simulate adviser reply

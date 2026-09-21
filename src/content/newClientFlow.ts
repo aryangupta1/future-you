@@ -24,19 +24,93 @@ const TALK: Option = { label: 'Talk to an adviser', next: 'to-adviser', action: 
 // ---------------------------------------------------------------------------
 
 export const landing = {
-  eyebrow: 'Future You by $RUs',
+  eyebrow: 'For sole traders, contractors and freelancers',
   headline: 'No employer paying your super? Ask anonymously.', // P2, P3
   body: [
-    'Straight answers on super, lumpy income and investing basics for self-employed Australians. No account, no sales pitch.', // P5
-    'Our AI digital advisor gives general information with a source for every answer. When you want advice on your own numbers, a licensed $RUs adviser takes over.', // P3, P5
+    'Straight answers on super, lumpy income and investing basics, with a source for every fact. No account, no sales pitch.', // P3, P5
+    'When you want advice on your own numbers, a licensed $RUs adviser takes over. Only if you ask.',
   ],
   startLabel: 'Start a conversation',
   existingLabel: "I'm an existing $RUs client",
-  proofPoints: [
-    'Anonymous. No sign-up needed.', // P3
-    'Answers in a few taps. Pick up later where you left off.', // P4
-    'Every answer links to the ATO, Moneysmart or ASIC.', // P5
-  ],
+  proofPoints: ['No sign-up', 'Every answer sourced', 'Ten minutes is enough'], // P3, P5, P4
+
+  // A real answer from the tree, so the preview can never drift from the product.
+  preview: {
+    question: "Do I have to pay my own super if I'm self-employed?",
+    nodeId: 'super-must',
+    messages: 2,
+  },
+
+  ask: {
+    title: 'Ask something now',
+    body: 'Tap a question. The answer opens in the chat, and nothing you tap is shared.',
+    // Labels match the options in the tree, so the chat reads naturally.
+    questions: [
+      { label: "Do I have to pay my own super if I'm self-employed?", nodeId: 'super-must' },
+      { label: 'Can I claim a tax deduction for super I put in?', nodeId: 'super-deduct' },
+      { label: 'How do I budget when income arrives in lumps?', nodeId: 'budget-lumps' },
+      { label: 'How much should I set aside for tax?', nodeId: 'budget-tax' },
+      { label: 'Shares or property: what are the trade-offs?', nodeId: 'invest-property' },
+      { label: "I've got $40k saved. Should I put $20k into super?", nodeId: 'super-40k' },
+    ],
+  },
+
+  // Persona pain points P1–P5, each followed through to what the product does (deck slide 9).
+  painPoints: {
+    title: 'Built for how you actually work',
+    items: [
+      { code: 'P1', pain: 'Income arrives in lumps', does: 'Check-ins when a payment lands, not on the first of the month.' },
+      { code: 'P2', pain: 'Nobody pays your super', does: 'Plain-English super for the self-employed, every fact linked to the ATO or Moneysmart.' },
+      { code: 'P3', pain: "You can't ask people you work with", does: "Anonymous by default. An $RUs adviser outside your network, only when you choose." },
+      { code: 'P4', pain: 'Your time comes in ten-minute pieces', does: 'Your plan saves. Pick up exactly where you left off.' },
+      { code: 'P5', pain: 'No patience for waffle', does: "Short answers, the reasoning if you want it, and it tells you it's an AI." },
+    ],
+  },
+
+  steps: {
+    title: 'How it works',
+    items: [
+      { title: 'Ask anonymously', body: 'Tap a topic or type your own question in AI mode. No account.' },
+      { title: 'Get a sourced answer', body: 'Short, general information with a link you can check.' },
+      { title: 'Build a small plan', body: 'Three next steps, sized for income that arrives in lumps.' },
+      { title: 'Meet a person when you choose', body: 'A licensed $RUs adviser gets a summary first, so you start at your level.', human: true },
+    ],
+  },
+
+  whyNow: {
+    title: 'Why now',
+    stats: [
+      {
+        // VERIFY: ASFA (March 2018), based on ABS 2015-16 data: "Around one-fifth (19 per cent) of the self-employed have no superannuation, compared with only 8 per cent of employees."
+        figure: '1 in 5',
+        text: 'self-employed Australians have no super at all, compared with 8% of employees.',
+        source: sources.asfaSelfEmployed,
+      },
+      {
+        // VERIFY: ASIC 26-049MR (2026), YouGov survey of 1,127 Australians aged 18–28: 63% use social media and 18% use AI platforms for financial information.
+        figure: '63%',
+        text: 'of Gen Z use social media for money information, and 18% use AI tools. People will ask somewhere. The value is an answer they can check.',
+        source: sources.asicGenZ,
+      },
+    ],
+  },
+
+  compare: {
+    title: 'Your options today',
+    columns: ['Private', 'Checkable', 'Small first step'],
+    rows: [
+      { option: 'Search, social media, generic AI', values: [true, false, true] },
+      { option: 'A planner you already know', values: [false, true, false] },
+      { option: 'Future You', values: [true, true, true], highlight: true },
+    ],
+  },
+
+  boundary: {
+    title: 'General information here. Personal advice from a person.',
+    body: "Future You explains how the rules work for everyone. Anything that depends on your own figures goes to a licensed $RUs adviser, and only when you ask.",
+    cta: 'Start a conversation',
+  },
+
   welcomeBack: {
     title: 'Welcome back: pick up where you left off', // P4
     body: 'Your plan is saved on this device.',

@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  /* One accent, used only for human-adviser moments. #0F6E6E on white = 6.1:1 (AA). */
+  --color-accent: #0f6e6e;
+  --color-accent-dark: #0a5454;
+  --color-accent-tint: #e9f3f3;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: #fff;
+  color: #0a0a0a;
+}
+
+:focus-visible {
+  outline: 2px solid #0a0a0a;
+  outline-offset: 2px;
+}
+
+@keyframes typing-dot {
+  0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-2px); }
+}
+.typing-dot { animation: typing-dot 1.1s infinite ease-in-out; }
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.fade-up { animation: fade-up 0.2s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .typing-dot, .fade-up { animation: none; }
+}

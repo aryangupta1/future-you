@@ -48,3 +48,11 @@ Append-only. Add one entry per session at the end of the file: the date, what ch
   - The deck's "1 in 5 reach retirement with no super (ASFA 2023)" isn't what the source says. The page uses the accurate wording.
 - The simulated adviser reply is now AI-generated through `/api/adviser-reply`, with the guardrails listed in the README. Falls back to the scripted reply.
 - Refactored the OpenAI call into `server/openai.ts`. Renamed `actions.startCheckIn` to `startWithQuestion`.
+
+## 2026-09-21 (booking calendar)
+
+- `/talk/details` now uses a month calendar with a list of times for the chosen day, the Calendly / Cal.com pattern, instead of four hardcoded slots.
+  - Component: `src/components/BookingCalendar.tsx`. Mock availability: `src/engine/slots.ts`, driven by `handover.availability` in `src/content/newClientFlow.ts` (21 days ahead, weekday and Saturday hours, some slots deterministically marked taken).
+  - Monday-first weeks, arrow-key navigation, sky (adviser) colours, and times in the visitor's time zone.
+- Added an optional email field after phone, with format validation only when it's filled in. `Handover` gains `email?` and `slotAt?` (ISO). The confirmation mentions the email if one was given.
+- Build passes. Checked in the browser: pick a day and time, invalid-email error, and the confirmation page.

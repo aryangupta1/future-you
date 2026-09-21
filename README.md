@@ -139,7 +139,7 @@ Pain points P1 to P5 are referenced in comments where content addresses them.
 5. Back to topics, then tap **Honestly, money stress…** to see the support card (an $RUs adviser, National Debt Helpline, Lifeline).
 6. Tap **Yes, turn this into a plan**. My Plan opens. Tick a step, **Save my plan**, then skip or fill in the optional email.
 7. Reload `/`. The **Welcome back** card replaces the start buttons.
-8. Tap **Talk to a person** in the header. Review the summary preview, share it, pick a slot, and book. The confirmation shows the adviser and says they'll read the summary first.
+8. Tap **Talk to a person** in the header. Review the summary preview and share it. Add a name, phone and optional email, pick a day in the calendar and then a time, and book. The confirmation shows the adviser and says they'll read the summary first.
 
 **Flow 2: existing client**
 

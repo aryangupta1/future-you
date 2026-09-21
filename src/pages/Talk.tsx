@@ -5,6 +5,8 @@ import { buildSummary } from '../engine/engine';
 import { actions, useAppState } from '../state/store';
 import { AdviserAvatar, Page, V0Note, btn, inputCls } from '../components/ui';
 import { PersonIcon } from '../components/icons';
+import { BookingCalendar } from '../components/BookingCalendar';
+import { formatSlot } from '../engine/slots';
 
 // Rule 4: "Talk to a person", teal throughout. The visitor sees exactly what
 // will be shared before sharing anything (rule 6: anonymous by default).
@@ -98,10 +100,12 @@ export function TalkDetails() {
   const includeStress = Boolean((location.state as { includeStress?: boolean } | null)?.includeStress);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [slot, setSlot] = useState('');
+  const [email, setEmail] = useState('');
+  const [slot, setSlot] = useState<Date | null>(null);
   const [tried, setTried] = useState(false);
 
-  const valid = name.trim() && phone.trim().length >= 8 && slot;
+  const emailOk = !email.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const valid = name.trim() && phone.trim().length >= 8 && emailOk && slot;
 
   return (
     <Page>
@@ -112,8 +116,15 @@ export function TalkDetails() {
         onSubmit={(e) => {
           e.preventDefault();
           setTried(true);
-          if (!valid) return;
-          actions.submitHandover({ name: name.trim(), phone: phone.trim(), slot, includeStress });
+          if (!valid || !slot) return;
+          actions.submitHandover({
+            name: name.trim(),
+            phone: phone.trim(),
+            email: email.trim() || undefined,
+            slot: formatSlot(slot),
+            slotAt: slot.toISOString(),
+            includeStress,
+          });
           navigate('/talk/confirmed', { replace: true });
         }}
       >
@@ -139,22 +150,29 @@ export function TalkDetails() {
           />
           {tried && phone.trim().length < 8 && <p className="mt-1 text-[13px] text-red-700">Add a phone number we can call.</p>}
         </div>
+        <div>
+          <label htmlFor="email" className="mb-1.5 block text-[14px] font-medium">
+            {handover.emailLabel} <span className="font-normal text-neutral-600">{handover.emailOptional}</span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            aria-describedby="email-hint"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={inputCls}
+          />
+          <p id="email-hint" className="mt-1 text-[13px] text-neutral-600">
+            {handover.emailHint}
+          </p>
+          {tried && !emailOk && <p className="mt-1 text-[13px] text-red-700">{handover.emailError}</p>}
+        </div>
         <fieldset>
           <legend className="mb-2 text-[14px] font-medium">{handover.slotsLabel}</legend>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {handover.slots.map((s) => (
-              <label
-                key={s}
-                className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-[15px] ${
-                  slot === s ? 'border-ink bg-accent-fill shadow-hard-sm' : 'border-ink bg-white hover:bg-accent-tint'
-                }`}
-              >
-                <input type="radio" name="slot" value={s} checked={slot === s} onChange={() => setSlot(s)} className="accent-[#075b72]" />
-                {s}
-              </label>
-            ))}
-          </div>
-          {tried && !slot && <p className="mt-1 text-[13px] text-red-700">Pick a time.</p>}
+          <BookingCalendar value={slot} onChange={setSlot} />
+          {tried && !slot && <p className="mt-2 text-[13px] text-red-700">{handover.slotError}</p>}
         </fieldset>
         <button type="submit" className={`${btn.adviser} w-full sm:w-auto`}>
           {handover.submitLabel}
@@ -187,6 +205,7 @@ export function TalkConfirmed() {
         </div>
         <p className="mt-5 text-[15px]">
           {handover.confirmedBody} They'll call {booking.name} on {booking.phone}.
+          {booking.email && ` ${handover.confirmedEmail} ${booking.email}.`}
         </p>
       </div>
 

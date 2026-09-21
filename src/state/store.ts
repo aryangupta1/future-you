@@ -29,7 +29,11 @@ export type AdviserMessage = {
 export type Handover = {
   name: string;
   phone: string;
+  email?: string;
+  /** Display label, e.g. "Tuesday 23 September, 9:30 am". */
   slot: string;
+  /** ISO start time of the booked slot. */
+  slotAt?: string;
   includeStress: boolean;
   submittedAt: string;
 };

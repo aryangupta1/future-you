@@ -734,13 +734,35 @@ export const handover = {
   consentLabel: 'Share this and continue',
   declineLabel: 'Not now',
   formTitle: 'How should we reach you?',
+  emailLabel: 'Email',
+  emailOptional: '(optional)',
+  emailHint: "For a calendar invite and a reminder. We won't use it for anything else.",
+  emailError: 'That email doesn’t look right. Check it, or leave it blank.',
   slotsLabel: 'Pick a time for a 15-minute call',
-  // Hardcoded v0 slots.
-  slots: ['Tomorrow, 9:30 am', 'Tomorrow, 12:15 pm', 'Thursday, 5:30 pm', 'Saturday, 10:00 am'],
+  dayPrompt: 'Choose a day to see times.',
+  noTimes: 'No times left on this day. Try another.',
+  timeZoneNote: 'Times are shown in your time zone.',
+  slotError: 'Pick a day and a time.',
+  prevMonth: 'Previous month',
+  nextMonth: 'Next month',
+  timesFor: 'Times for',
+  // v0 mock availability (engine/slots.ts). Keys are JS weekdays, 0 = Sunday.
+  availability: {
+    daysAhead: 21,
+    hours: {
+      1: ['09:30', '11:00', '12:15', '14:00', '17:30'],
+      2: ['09:30', '11:00', '12:15', '14:00', '17:30'],
+      3: ['09:30', '11:00', '12:15', '14:00', '17:30'],
+      4: ['09:30', '11:00', '12:15', '14:00', '17:30'],
+      5: ['09:30', '11:00', '12:15', '14:00'],
+      6: ['10:00', '11:30'],
+    } as Record<number, string[]>,
+  },
   submitLabel: 'Book my call',
   confirmedTitle: "You're booked in",
   adviserName: 'Sam Whitlock', // placeholder adviser
   adviserRole: 'Financial Adviser, $RUs',
   confirmedBody: 'Your adviser will read this summary before calling.',
+  confirmedEmail: 'A calendar invite would go to',
   mockNote: 'v0 mock: no booking is made and no one will call.',
 };

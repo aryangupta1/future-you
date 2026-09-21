@@ -34,6 +34,7 @@ export function Dashboard() {
           <div className="mt-2 space-y-2 text-[15px] leading-relaxed text-neutral-900">
             <p>{correctionNotice.wrong}</p>
             <p>{correctionNotice.correct}</p>
+            <p>{correctionNotice.mitigation}</p>
             <p className="font-medium">{correctionNotice.action}</p>
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">

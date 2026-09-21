@@ -11,6 +11,7 @@ import { SignIn } from './pages/SignIn';
 import { Dashboard } from './pages/Dashboard';
 import { ClientChat } from './pages/ClientChat';
 import { AskAdviser } from './pages/AskAdviser';
+import { Staff } from './pages/Staff';
 
 function RequireSignIn({ children }: { children: ReactNode }) {
   const signedIn = useAppState((s) => s.signedIn);
@@ -43,6 +44,8 @@ export function App() {
           <Route path="dashboard" element={<RequireSignIn><Dashboard /></RequireSignIn>} />
           <Route path="client-chat" element={<RequireSignIn><ClientChat /></RequireSignIn>} />
           <Route path="ask-adviser" element={<RequireSignIn><AskAdviser /></RequireSignIn>} />
+          {/* $RUs staff: engagement measures and monitoring log */}
+          <Route path="staff" element={<Staff />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAppState } from '../state/store';
-import { PersonIcon } from './icons';
+import { AlertIcon, PersonIcon } from './icons';
+import { serviceStatus } from '../content/service';
 import { DevPanel, toggleDevPanel } from './DevPanel';
 
 // Rule 4: "Talk to a person" is visible on every page, in teal.
@@ -37,14 +38,36 @@ function Header() {
   );
 }
 
+// Feature 8 (A2, A5): the moment the advisor is slow or down, every page says so.
+function ServiceBanner() {
+  const status = useAppState((s) => s.serviceStatus);
+  if (status === 'ok') return null;
+  const copy = serviceStatus[status];
+  return (
+    <div role="status" className="border-b border-neutral-300 bg-neutral-100">
+      <div className="mx-auto flex max-w-3xl gap-2.5 px-4 py-2.5 text-[14px] sm:px-6">
+        <AlertIcon className="mt-0.5 shrink-0" width={18} height={18} />
+        <p>
+          <span className="font-semibold">{copy.banner}.</span> {copy.detail}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function Footer() {
   return (
     <footer className="border-t border-neutral-200">
       <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-2 px-4 py-5 text-[12px] text-neutral-600 sm:px-6">
         <p>General information only, not personal advice. v0 prototype: nothing is sent anywhere.</p>
-        <button type="button" onClick={toggleDevPanel} className="underline underline-offset-2 hover:text-neutral-950">
-          Dev panel (D)
-        </button>
+        <div className="flex gap-4">
+          <Link to="/staff" className="underline underline-offset-2 hover:text-neutral-950">
+            $RUs staff view
+          </Link>
+          <button type="button" onClick={toggleDevPanel} className="underline underline-offset-2 hover:text-neutral-950">
+            Dev panel (D)
+          </button>
+        </div>
       </div>
     </footer>
   );
@@ -58,6 +81,8 @@ export function Layout() {
   return (
     <div className="flex min-h-dvh flex-col">
       <Header />
+      {/* Chat screens are fixed-height and show the status in their own header and tray. */}
+      {!isChat && <ServiceBanner />}
       <div className="flex-1">
         <Outlet />
       </div>

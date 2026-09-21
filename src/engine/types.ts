@@ -4,7 +4,7 @@
 
 export type Source = { label: string; url: string };
 
-export type OptionAction = 'savePlan' | 'handover' | 'askAdviser' | 'addPlanStep';
+export type OptionAction = 'savePlan' | 'openPlan' | 'handover' | 'askAdviser' | 'addPlanStep';
 
 export type Option = {
   label: string;

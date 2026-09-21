@@ -199,6 +199,9 @@ export const correctionNotice = {
   // VERIFY: carry-forward of unused concessional cap amounts from up to five previous years if total super balance was below the threshold at the previous 30 June.
   correct:
     "Correct information: you may be able to use unused concessional cap amounts from up to five previous financial years, but only if your total super balance was below the threshold on 30 June of the previous year. The threshold changes, so check the ATO's current figure.",
+  // Story A4: what $RUs is doing about it, so a client can pass it on to family.
+  mitigation:
+    'What $RUs is doing: the answer was fixed the day it was found, every person who saw it is getting this notice, and an adviser has reviewed each affected conversation. Anyone in your family who used Future You gets the same notice.',
   action: `What to do: if you were planning a catch-up contribution based on that answer, check with ${adviser.firstName} before contributing.`,
   source: sources.atoConcessionalCap,
   dismiss: 'Got it',

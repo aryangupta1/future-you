@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { landing } from '../content/newClientFlow';
-import { useAppState } from '../state/store';
+import { actions, useAppState } from '../state/store';
 import { CheckIcon } from '../components/icons';
 import { Page, btn } from '../components/ui';
 
@@ -30,6 +30,22 @@ export function Landing() {
           <p className="mt-1 text-[15px] text-neutral-600">
             {landing.welcomeBack.body} {done} of {plan.steps.length} steps done.
           </p>
+          {plan.checkIns === 'payment' && (
+            // P1: the check-in is triggered by her income arriving.
+            <div className="mt-4 rounded-xl bg-neutral-100 p-4">
+              <button
+                type="button"
+                className={`${btn.primary} w-full sm:w-auto`}
+                onClick={() => {
+                  actions.startCheckIn(landing.welcomeBack.paymentLanded, landing.welcomeBack.paymentLandedNode);
+                  navigate('/chat');
+                }}
+              >
+                {landing.welcomeBack.paymentLanded}
+              </button>
+              <p className="mt-2 text-[13px] text-neutral-600">{landing.welcomeBack.paymentLandedHint}</p>
+            </div>
+          )}
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <button type="button" className={btn.primary} onClick={() => navigate('/plan')}>
               {landing.welcomeBack.openPlan}

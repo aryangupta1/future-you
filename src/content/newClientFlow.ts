@@ -42,6 +42,10 @@ export const landing = {
     body: 'Your plan is saved on this device.',
     openPlan: 'Open my plan',
     continueChat: 'Continue the conversation',
+    // P1: the check-in is triggered by her income, not the calendar.
+    paymentLanded: 'A payment just landed',
+    paymentLandedNode: 'checkin-payment',
+    paymentLandedHint: "Tap this when a payment clears. It takes about ten minutes.",
   },
 };
 
@@ -57,6 +61,20 @@ const nodes: Node[] = [
       "Hi, I'm the Future You digital advisor. I'm an AI, not a person.",
       "I give general information only. I don't see your figures and can't tell you what to do with your money. When a question needs that, I'll say so and you can talk to a licensed $RUs adviser.",
       'No account needed. Nothing here is shared with anyone unless you choose to talk to an adviser.', // P3
+    ],
+    options: [
+      { label: 'Got it, show me topics', next: 'topics' },
+      { label: 'What happens to my data?', next: 'data' },
+    ],
+  },
+  // Feature 1 (G3): what happens to her data, before she types anything. P3, P5.
+  // Product policy, not a regulatory fact, so no source.
+  {
+    id: 'data',
+    messages: [
+      'Short version: you stay anonymous unless you choose otherwise.',
+      "• Your chat and plan are kept on this device. There's no account, and I never ask for your name.\n• Conversations are logged without your name so $RUs can check my answers, the same way it monitors its human advisers.\n• Nothing goes to an adviser unless you tap 'Talk to a person', and you'll see exactly what would be shared first.\n• You can delete everything at any time.",
+      "I won't ask for your figures. If you type them into a question, I'll tell you where general information stops.",
     ],
     options: [{ label: 'Got it, show me topics', next: 'topics' }],
   },
@@ -491,6 +509,31 @@ const nodes: Node[] = [
     messages: ["Opening the adviser page. You'll see exactly what gets shared before anything is sent."],
     options: [BACK],
   },
+  // ---- Check-in when a payment lands (feature 5, P1, P4) -------------------
+  {
+    id: 'checkin-payment',
+    topic: 'Check-in: a payment landed',
+    messages: [
+      'Nice. Ten minutes now saves a scramble later. The usual order, in general:',
+      // VERIFY: Moneysmart self-employment guidance: set aside money for tax, keep a buffer, pay yourself a regular amount.
+      "1. Move your tax share into the tax account first, before anything feels spendable.\n2. Top up your buffer if a quiet month has drawn it down.\n3. Then pay yourself your regular 'wage' from the buffer.",
+      // VERIFY: voluntary personal contributions can be made at any time; deductible ones count towards the annual concessional cap.
+      "If there's money left over, this is when some self-employed people make a voluntary super contribution. There's an annual cap, so check what you've already put in this year.",
+      'How much goes where depends on your numbers. That part is for an adviser.',
+    ],
+    why: "Checking in when money arrives, not on the first of the month, means you act while the cash is actually there. Tax first stops a big bill landing after it's spent.",
+    sources: [sources.msSelfEmployment, sources.atoConcessionalCap],
+    options: [
+      { label: 'Open my plan and tick off a step', next: 'plan-open', action: 'openPlan' },
+      { label: 'Help me split this payment', next: 'to-adviser', action: 'handover' },
+      BACK,
+    ],
+  },
+  {
+    id: 'plan-open',
+    messages: ['Opening your plan.'],
+    options: [BACK],
+  },
   {
     id: 'plan-step-added',
     messages: ["Added to your plan. You'll see it on My Plan."],
@@ -582,6 +625,24 @@ export const planPage = {
     send: 'Send me a copy',
     skip: 'Skip',
     sent: 'v0 mock: no email was sent. In the real app a copy would go to',
+    // Journey map: "saves with an email or a private link". Keeps her anonymous.
+    privateLinkLabel: 'Use a private link instead',
+    privateLinkTitle: 'Your private link',
+    privateLinkBody: 'Bookmark this link to come back to your plan. Anyone with the link can see the plan, so keep it to yourself.',
+    privateLinkCopy: 'Copy link',
+    privateLinkCopied: 'Copied',
+    privateLinkMock: 'v0 mock: the link only works on this device. In the real app it would open your plan anywhere.',
+  },
+  // Feature 5 (G4, A1): check-ins follow her income, not the calendar month. P1, P4.
+  checkIns: {
+    title: 'Check-ins',
+    body: 'A short nudge to spend ten minutes on your plan. Opt in only if you want it.',
+    options: [
+      { value: 'payment', label: 'When a payment lands', detail: "Tap 'A payment just landed' on the home page and I'll walk you through it. Best for lumpy income." },
+      { value: 'monthly', label: 'Once a month', detail: 'A reminder on the first of each month.' },
+      { value: 'off', label: 'No check-ins', detail: 'Come back whenever you like.' },
+    ],
+    mockNote: 'v0 mock: no reminders are sent.',
   },
 };
 

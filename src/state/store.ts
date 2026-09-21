@@ -27,11 +27,38 @@ export type Handover = {
   submittedAt: string;
 };
 
+export type ServiceStatus = 'ok' | 'slow' | 'down';
+
+/**
+ * Monitoring log (story A6): every digital interaction is recorded so $RUs can
+ * review it the way it reviews human advisers. Also feeds the four engagement
+ * measures. v0 keeps it on this device only.
+ */
+export type LogEvent = { at: string } & (
+  | { kind: 'visit' }
+  | { kind: 'chat'; flow: 'newClient' | 'existingClient'; question: string; nodeId: string }
+  | { kind: 'planSaved' }
+  | { kind: 'stepDone'; step: string }
+  | { kind: 'handover' }
+  | { kind: 'adviserMessage' }
+);
+
+export type CheckIns = 'payment' | 'monthly' | 'off';
+
 export type AppState = {
   version: 1;
   chats: { newClient: ChatState; existingClient: ChatState };
   /** New-client plan. null until the AI offers one and the visitor accepts. */
-  plan: { steps: PlanStep[]; saved: boolean; email?: string; emailDone?: boolean } | null;
+  plan: {
+    steps: PlanStep[];
+    saved: boolean;
+    email?: string;
+    emailDone?: boolean;
+    /** A private return link instead of an email (journey map: "email or a private link"). */
+    privateLink?: string;
+    /** P1: check-ins follow her income, not the calendar. Unset until she chooses. */
+    checkIns?: CheckIns;
+  } | null;
   /** Steps added from the chat before a plan exists. */
   pendingSteps: PlanStep[];
   handover: Handover | null;
@@ -39,6 +66,9 @@ export type AppState = {
   clientPlan: PlanStep[];
   adviserThread: AdviserMessage[];
   showCorrection: boolean;
+  /** Feature 8: told honestly when the advisor is slow or unavailable. Set from the dev panel in v0. */
+  serviceStatus: ServiceStatus;
+  log: LogEvent[];
 };
 
 const KEY = 'futureYou.v0';
@@ -55,6 +85,8 @@ export const initialState = (): AppState => ({
   clientPlan: clientPlanSeed.map((s) => ({ ...s })),
   adviserThread: [],
   showCorrection: false,
+  serviceStatus: 'ok',
+  log: [],
 });
 
 function load(): AppState {
@@ -106,6 +138,20 @@ export function useAppState<T>(selector: (s: AppState) => T): T {
 const withStep = (steps: PlanStep[], step: PlanStep) =>
   steps.some((s) => s.id === step.id) ? steps : [...steps, { ...step }];
 
+const LOG_LIMIT = 500;
+const now = () => new Date().toISOString();
+
+// Omit that keeps the union intact, so each event kind still type-checks.
+type NewEvent = LogEvent extends infer E ? (E extends LogEvent ? Omit<E, 'at'> : never) : never;
+
+const withLog = (s: AppState, event: NewEvent, at = now()): AppState => ({
+  ...s,
+  log: [...s.log, { ...event, at } as LogEvent].slice(-LOG_LIMIT),
+});
+
+/** A new visit starts after 30 minutes away. */
+const VISIT_GAP_MS = 30 * 60 * 1000;
+
 export const actions = {
   resetAll() {
     try {
@@ -133,7 +179,15 @@ export const actions = {
   },
 
   savePlan() {
-    setState((s) => (s.plan ? { ...s, plan: { ...s.plan, saved: true } } : s));
+    setState((s) => (s.plan ? withLog({ ...s, plan: { ...s.plan, saved: true } }, { kind: 'planSaved' }) : s));
+  },
+
+  setPrivateLink(link: string) {
+    setState((s) => (s.plan ? { ...s, plan: { ...s.plan, privateLink: link, emailDone: true } } : s));
+  },
+
+  setCheckIns(checkIns: CheckIns) {
+    setState((s) => (s.plan ? { ...s, plan: { ...s.plan, checkIns } } : s));
   },
 
   setPlanEmail(email: string | undefined) {
@@ -141,28 +195,27 @@ export const actions = {
   },
 
   togglePlanStep(id: string) {
-    setState((s) =>
-      s.plan
-        ? {
-            ...s,
-            plan: {
-              ...s.plan,
-              steps: s.plan.steps.map((st) => (st.id === id ? { ...st, done: !st.done } : st)),
-            },
-          }
-        : s,
-    );
+    setState((s) => {
+      if (!s.plan) return s;
+      const step = s.plan.steps.find((st) => st.id === id);
+      const next = {
+        ...s,
+        plan: { ...s.plan, steps: s.plan.steps.map((st) => (st.id === id ? { ...st, done: !st.done } : st)) },
+      };
+      return step && !step.done ? withLog(next, { kind: 'stepDone', step: step.text }) : next;
+    });
   },
 
   toggleClientStep(id: string) {
-    setState((s) => ({
-      ...s,
-      clientPlan: s.clientPlan.map((st) => (st.id === id ? { ...st, done: !st.done } : st)),
-    }));
+    setState((s) => {
+      const step = s.clientPlan.find((st) => st.id === id);
+      const next = { ...s, clientPlan: s.clientPlan.map((st) => (st.id === id ? { ...st, done: !st.done } : st)) };
+      return step && !step.done ? withLog(next, { kind: 'stepDone', step: step.text }) : next;
+    });
   },
 
   submitHandover(h: Omit<Handover, 'submittedAt'>) {
-    setState((s) => ({ ...s, handover: { ...h, submittedAt: new Date().toISOString() } }));
+    setState((s) => withLog({ ...s, handover: { ...h, submittedAt: now() } }, { kind: 'handover' }));
   },
 
   signIn() {
@@ -174,13 +227,12 @@ export const actions = {
   },
 
   sendToAdviser(text: string, timeSensitive: boolean) {
-    setState((s) => ({
-      ...s,
-      adviserThread: [
-        ...s.adviserThread,
-        { from: 'client', text, timeSensitive, at: new Date().toISOString() },
-      ],
-    }));
+    setState((s) =>
+      withLog(
+        { ...s, adviserThread: [...s.adviserThread, { from: 'client', text, timeSensitive, at: now() }] },
+        { kind: 'adviserMessage' },
+      ),
+    );
   },
 
   /** Dev/demo: adds the hardcoded adviser reply and its plan step. */
@@ -197,5 +249,49 @@ export const actions = {
 
   setCorrection(show: boolean) {
     setState((s) => ({ ...s, showCorrection: show }));
+  },
+
+  setServiceStatus(serviceStatus: ServiceStatus) {
+    setState((s) => ({ ...s, serviceStatus }));
+  },
+
+  logChat(flow: 'newClient' | 'existingClient', question: string, nodeId: string) {
+    setState((s) => withLog(s, { kind: 'chat', flow, question, nodeId }));
+  },
+
+  /** Called once per page load. Counts as a new visit after 30 minutes away. */
+  recordVisit() {
+    setState((s) => {
+      const last = [...s.log].reverse().find((e) => e.kind === 'visit');
+      if (last && Date.now() - Date.parse(last.at) < VISIT_GAP_MS) return s;
+      return withLog(s, { kind: 'visit' });
+    });
+  },
+
+  /**
+   * P1: a payment has landed. Continue the anonymous chat at the check-in node,
+   * as if she had tapped the question herself.
+   */
+  startCheckIn(question: string, nodeId: string) {
+    setState((s) => {
+      const chat = s.chats.newClient;
+      const thread: ThreadEntry[] = [
+        ...(chat.thread.length ? chat.thread : [{ type: 'node' as const, nodeId: 'start' }]),
+        { type: 'user', text: question },
+        { type: 'node', nodeId },
+      ];
+      return withLog(
+        { ...s, chats: { ...s.chats, newClient: { ...chat, thread } } },
+        { kind: 'chat', flow: 'newClient', question, nodeId },
+      );
+    });
+  },
+
+  /** Dev/demo: pretend the first visit was eight days ago, so today counts as a return. */
+  simulateReturnVisit() {
+    setState((s) => {
+      const at = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+      return { ...s, log: [{ kind: 'visit', at } as LogEvent, ...s.log].slice(-LOG_LIMIT) };
+    });
   },
 };

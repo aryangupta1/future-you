@@ -14,7 +14,9 @@ npm run build    # type-checks (tsc -b), then builds to dist/
 
 Requires Node 20+. Stack: Vite 6, React 18, TypeScript, Tailwind CSS 4 and React Router 6.
 
-Press **D** anywhere (or tap "Dev" in the footer or chat tray) to open the dev panel. From there you can reset all state, jump to Flow 1 or Flow 2, simulate an adviser reply, and show or hide the correction notice.
+Press **D** anywhere (or tap "Dev" in the footer or chat tray) to open the dev panel. From there you can reset all state, jump to Flow 1 or Flow 2, simulate an adviser reply, show or hide the correction notice, set the advisor status (normal, slow or unavailable), simulate a return visit, and open the $RUs staff view.
+
+Product context (persona, the four engagement measures, the phases) is in `docs/product.md`, and build status against the ranked backlog is in `docs/backlog.md`.
 
 ## Project layout
 
@@ -24,10 +26,12 @@ src/
     newClientFlow.ts        Flow 1: every word of the new-client chat, landing, plan and handover copy
     existingClientFlow.ts   Flow 2: existing-client chat, dashboard, adviser, reply, correction notice
     sources.ts              ATO / Moneysmart / ASIC links used by answers
+    service.ts              Service-status copy (slow / unavailable) and the $RUs staff view
   engine/
     types.ts                Source, Option, Node, Flow, PlanStep
     engine.ts               Pure functions: choose(), visibleOptions(), buildSummary(), validateFlow()
-  state/store.ts            App state + actions, persisted to localStorage (try/catch wrapped)
+    measures.ts             The four engagement measures and monitoring-log classification
+  state/store.ts            App state + actions + monitoring log, persisted to localStorage (try/catch wrapped)
   components/               Chat window, layout/header, dev panel, shared UI
   pages/                    One file per screen
 ```
@@ -96,6 +100,8 @@ Chat threads store node **ids**, not text. Editing a content file therefore upda
 | Distress leads to a calm support card, not crisis help | `distress` node + `supportCard` |
 | Anonymous by default; email optional, offered only on saving a plan | No sign-up; `MyPlan.tsx` |
 | No hardcoded caps, rates or thresholds; `// VERIFY` on facts | Content files |
+| Every exchange logged for review, like a human adviser (A6) | `actions.logChat()`, `/staff` monitoring log |
+| Told honestly when the advisor is slow or down (A2, A5) | `serviceStatus` in the store, `ServiceBanner` in `Layout.tsx`, chat tray |
 
 Pain points P1 to P5 are referenced in comments where content addresses them.
 
@@ -119,7 +125,15 @@ Pain points P1 to P5 are referenced in comments where content addresses them.
 3. **Open the AI chat**, then tap **What's the deadline for a deductible super contribution?** You get a general answer with a source and a teal note that Priya's recorded step stands.
 4. Tap **So how much should I put in this year?** This is personal advice, so it offers **Ask my adviser**. The message page opens with the question pre-filled and context attached.
 5. Tick **time-sensitive** and **Send**, then **Simulate adviser reply**. The reply appears and a new "From your adviser" step is added to the plan.
-6. Press **D** and turn on **Show correction notice** to see the dashboard banner.
+6. Press **D** and turn on **Show correction notice** to see the dashboard banner, including what $RUs is doing about it.
+
+**Flow 3: return, service status and the staff view**
+
+1. On a fresh start, tap **What happens to my data?** before choosing a topic.
+2. After saving a plan, choose **When a payment lands** under Check-ins. Back on `/`, the Welcome back card shows **A payment just landed**, which opens a sourced check-in in the chat.
+3. On My Plan, **Use a private link instead** swaps the email for a copyable link (v0: this device only).
+4. Press **D**, set **Advisor status** to Slow or Unavailable. Every page shows a banner. In the chat, Unavailable replaces the reply chips with a "Talk to a person" card.
+5. Press **D**, tap **Simulate a return visit**, then **Open $RUs staff view** (also in the footer). It shows the four engagement measures and the monitoring log, with advice-line and distress exchanges flagged for review.
 
 ## Out of scope for v0
 

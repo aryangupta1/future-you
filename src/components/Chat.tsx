@@ -4,6 +4,7 @@ import type { Flow, Node, Option, OptionAction, PlanStep } from '../engine/types
 import { choose, getNode, startChat, visibleOptions } from '../engine/engine';
 import { actions, setState, useAppState, type AppState, type ThreadEntry } from '../state/store';
 import { supportCard } from '../content/newClientFlow';
+import { chatUnavailable, serviceStatus } from '../content/service';
 import { AdviserNote, SourceList, Why, btn } from './ui';
 import { ChatBubbleIcon, PersonIcon, PhoneIcon } from './icons';
 import { toggleDevPanel } from './DevPanel';
@@ -42,6 +43,7 @@ const messagesOf = (flow: Flow, entry: Extract<ThreadEntry, { type: 'node' }>) =
 export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNote }: Props) {
   const chat = useAppState((s) => s.chats[chatKey]);
   const planExists = useAppState((s) => s.plan !== null);
+  const status = useAppState((s) => s.serviceStatus);
   // Index of the thread entry currently being revealed, and how many of its
   // messages are visible. Not persisted: a reload shows everything at once.
   const [animating, setAnimating] = useState<{ index: number; shown: number } | null>(null);
@@ -108,6 +110,7 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
     if (option.action === 'addPlanStep' && option.planStep) actions.addPlanStep(option.planStep);
     if (option.action === 'savePlan' && planTemplate) actions.createPlan(planTemplate);
     if (option.action && option.action !== 'addPlanStep') pendingNav.current = option.action;
+    actions.logChat(flow.id, option.label, option.next);
     const next = choose(flow, chat, option);
     setChat(next);
     setAnimating({ index: next.thread.length - 1, shown: 0 });
@@ -128,7 +131,11 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
               Future You <AIBadge />
             </p>
             <p className="truncate text-[12px] text-neutral-600">
-              {busy && animating ? 'Typing…' : 'General information only · replies instantly'}
+              {busy && animating
+                ? 'Typing…'
+                : status === 'ok'
+                  ? 'General information only · replies instantly'
+                  : serviceStatus[status].chatSubtitle}
             </p>
           </div>
         </div>
@@ -169,13 +176,18 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
       {/* Reply tray */}
       <div className="border-t border-neutral-200 bg-white pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto max-w-2xl px-4 pt-3 pb-2 sm:px-6">
-          {busy ? (
+          {status === 'down' && !busy ? (
+            <ChatUnavailable talkTo={flow.id === 'existingClient' ? '/ask-adviser' : '/talk'} />
+          ) : busy ? (
             <p className="flex h-10 items-center text-[14px] text-neutral-500">
               {animating ? 'Future You is typing…' : 'Opening…'}
             </p>
           ) : (
             <div className="fade-up">
-              <p className="mb-2 text-[12px] font-medium text-neutral-600">Tap a reply</p>
+              <p className="mb-2 text-[12px] font-medium text-neutral-600">
+                Tap a reply
+                {status === 'slow' && <span className="font-normal"> · {serviceStatus.slow.trayNote}</span>}
+              </p>
               <div
                 className="flex max-h-[38dvh] flex-wrap gap-2 overflow-y-auto pb-1"
                 role="group"
@@ -197,6 +209,24 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Feature 8: say plainly that no reply is coming, and offer a person instead.
+function ChatUnavailable({ talkTo }: { talkTo: string }) {
+  return (
+    <div role="status" className="fade-up rounded-2xl border border-neutral-300 bg-neutral-50 p-4">
+      <p className="text-[15px] font-semibold">{chatUnavailable.title}</p>
+      <p className="mt-1 text-[14px] text-neutral-700">{chatUnavailable.body}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link to={talkTo} className={`${btn.adviser} !px-4 !py-2 text-[14px]`}>
+          <PersonIcon width={16} height={16} /> {chatUnavailable.cta}
+        </Link>
+        <Link to="/" className={`${btn.secondary} !px-4 !py-2 text-[14px]`}>
+          {chatUnavailable.back}
+        </Link>
       </div>
     </div>
   );

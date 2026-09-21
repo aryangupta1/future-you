@@ -12,7 +12,7 @@ export function NewClientChat() {
         chatKey="newClient"
         planTemplate={planTemplate}
         startNote="Anonymous chat · nothing is shared unless you choose"
-        onNavigate={(action) => navigate(action === 'savePlan' ? '/plan' : '/talk')}
+        onNavigate={(action) => navigate(action === 'savePlan' || action === 'openPlan' ? '/plan' : '/talk')}
       />
     </main>
   );

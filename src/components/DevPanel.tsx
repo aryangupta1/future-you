@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { actions, useAppState } from '../state/store';
+import { actions, useAppState, type ServiceStatus } from '../state/store';
 import { countAnswers } from '../engine/engine';
 import { newClientFlow } from '../content/newClientFlow';
 
@@ -16,6 +16,7 @@ export function DevPanel() {
   const answers = useAppState((s) => countAnswers(newClientFlow, s.chats.newClient.thread));
   const planState = useAppState((s) => (s.plan ? (s.plan.saved ? 'saved' : 'draft') : 'none'));
   const signedIn = useAppState((s) => s.signedIn);
+  const serviceStatus = useAppState((s) => s.serviceStatus);
 
   useEffect(() => {
     const toggle = () => setOpen((o) => !o);
@@ -84,6 +85,24 @@ export function DevPanel() {
             className="h-4 w-4 accent-white"
           />
         </label>
+        <label className={`${item} flex items-center justify-between gap-2`}>
+          Advisor status
+          <select
+            value={serviceStatus}
+            onChange={(e) => actions.setServiceStatus(e.target.value as ServiceStatus)}
+            className="rounded bg-neutral-800 px-1.5 py-0.5 text-[13px]"
+          >
+            <option value="ok">Normal</option>
+            <option value="slow">Slow</option>
+            <option value="down">Unavailable</option>
+          </select>
+        </label>
+        <button type="button" className={item} onClick={actions.simulateReturnVisit}>
+          Simulate a return visit (first visit 8 days ago)
+        </button>
+        <button type="button" className={item} onClick={() => navigate('/staff')}>
+          Open $RUs staff view
+        </button>
         <button
           type="button"
           className={`${item} border-red-400/60 text-red-200`}

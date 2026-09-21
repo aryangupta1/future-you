@@ -17,6 +17,7 @@ export type Measures = {
 
 export function computeMeasures(log: LogEvent[], flows: Record<string, Flow>): Measures {
   const answers = log.filter((e) => {
+    if (e.kind === 'ai') return e.outcome === 'normal' && e.sources > 0;
     if (e.kind !== 'chat') return false;
     const node = flows[e.flow]?.nodes[e.nodeId];
     return Boolean(node && isAnswer(node));
@@ -50,6 +51,13 @@ export function classify(event: LogEvent, flows: Record<string, Flow>): Outcome 
       return { label: 'Handover booked with a summary', flagged: false };
     case 'adviserMessage':
       return { label: 'Message sent to their adviser', flagged: false };
+    case 'ai':
+      if (event.outcome === 'personalAdvice')
+        return { label: 'AI mode · advice line: general rules only, human offered', flagged: true, reason: 'Asked for personal advice' };
+      if (event.outcome === 'offTopic') return { label: 'AI mode · off-topic, declined', flagged: false };
+      if (event.sources === 0)
+        return { label: 'AI mode · answer with no vetted source, human offered', flagged: true, reason: 'Unsourced AI answer' };
+      return { label: `AI mode · general answer · ${event.sources} source${event.sources > 1 ? 's' : ''}`, flagged: false };
     case 'chat': {
       const node = flows[event.flow]?.nodes[event.nodeId];
       if (!node) return { label: `Unknown node "${event.nodeId}"`, flagged: true, reason: 'Content missing' };

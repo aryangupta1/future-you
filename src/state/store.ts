@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { PlanStep } from '../engine/types';
+import type { AiAnswer } from '../ai/types';
 import { clientPlanSeed, adviserReply } from '../content/existingClientFlow';
 
 // A tiny app-wide store persisted to localStorage so a returning visitor can
@@ -8,7 +9,9 @@ import { clientPlanSeed, adviserReply } from '../content/existingClientFlow';
 
 export type ThreadEntry =
   | { type: 'user'; text: string }
-  | { type: 'node'; nodeId: string; extra?: string[] };
+  | { type: 'node'; nodeId: string; extra?: string[] }
+  /** An AI-mode answer. Stored as text because it isn't part of the content tree. */
+  | ({ type: 'ai' } & Omit<AiAnswer, 'type'>);
 
 export type ChatState = { thread: ThreadEntry[]; planOffered: boolean };
 
@@ -37,6 +40,7 @@ export type ServiceStatus = 'ok' | 'slow' | 'down';
 export type LogEvent = { at: string } & (
   | { kind: 'visit' }
   | { kind: 'chat'; flow: 'newClient' | 'existingClient'; question: string; nodeId: string }
+  | { kind: 'ai'; flow: 'newClient' | 'existingClient'; question: string; outcome: AiAnswer['kind']; sources: number }
   | { kind: 'planSaved' }
   | { kind: 'stepDone'; step: string }
   | { kind: 'handover' }
@@ -69,6 +73,8 @@ export type AppState = {
   /** Feature 8: told honestly when the advisor is slow or unavailable. Set from the dev panel in v0. */
   serviceStatus: ServiceStatus;
   log: LogEvent[];
+  /** Free-text chat answered by the model, behind the same guardrails. */
+  aiMode: boolean;
 };
 
 const KEY = 'futureYou.v0';
@@ -87,6 +93,7 @@ export const initialState = (): AppState => ({
   showCorrection: false,
   serviceStatus: 'ok',
   log: [],
+  aiMode: false,
 });
 
 function load(): AppState {
@@ -257,6 +264,14 @@ export const actions = {
 
   logChat(flow: 'newClient' | 'existingClient', question: string, nodeId: string) {
     setState((s) => withLog(s, { kind: 'chat', flow, question, nodeId }));
+  },
+
+  logAi(flow: 'newClient' | 'existingClient', question: string, outcome: AiAnswer['kind'], sources: number) {
+    setState((s) => withLog(s, { kind: 'ai', flow, question, outcome, sources }));
+  },
+
+  setAiMode(aiMode: boolean) {
+    setState((s) => ({ ...s, aiMode }));
   },
 
   /** Called once per page load. Counts as a new visit after 30 minutes away. */

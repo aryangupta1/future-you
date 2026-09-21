@@ -92,15 +92,19 @@ export function Staff() {
               <li key={i} className={`px-4 py-3 ${outcome.flagged ? 'bg-neutral-50' : ''}`}>
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-neutral-500">
                   <time dateTime={event.at}>{time(event.at)}</time>
-                  {event.kind === 'chat' && <span>· {flowLabel[event.flow]}</span>}
+                  {(event.kind === 'chat' || event.kind === 'ai') && <span>· {flowLabel[event.flow]}</span>}
                   {outcome.flagged && (
                     <span className="inline-flex items-center gap-1 font-semibold text-neutral-950">
                       <AlertIcon width={13} height={13} /> Review: {outcome.reason}
                     </span>
                   )}
                 </div>
-                {event.kind === 'chat' && <p className="mt-1 text-[15px] font-medium">“{event.question}”</p>}
-                <p className={`text-[14px] text-neutral-700 ${event.kind === 'chat' ? '' : 'mt-1'}`}>{outcome.label}</p>
+                {(event.kind === 'chat' || event.kind === 'ai') && (
+                  <p className="mt-1 text-[15px] font-medium">“{event.question}”</p>
+                )}
+                <p className={`text-[14px] text-neutral-700 ${event.kind === 'chat' || event.kind === 'ai' ? '' : 'mt-1'}`}>
+                  {outcome.label}
+                </p>
               </li>
             ))}
           </ol>

@@ -56,4 +56,10 @@ export type Flow = {
    * available on every node until a plan is saved.
    */
   planOffer?: { afterAnswers: number; message: string; option: Option };
+  /**
+   * AI mode. Present when the chat allows free text answered by the model.
+   * The guardrails reuse the tree: distress goes to the vetted `distressNode`,
+   * and personal-advice or unsourced answers offer the `handover` option.
+   */
+  ai?: { handover: Option; distressNode: string };
 };

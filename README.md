@@ -2,7 +2,7 @@
 
 A web app for $RUs with an AI digital advisor. People ask money questions anonymously, build a small plan, and talk to a licensed human adviser when they choose.
 
-**This is v0.** The chat is fully hardcoded. The user taps reply chips, and there is no free-text input, no AI calls and no backend. Sign-in, email, bookings and adviser messages are mocks and are labelled "v0" in the UI. All conversation content lives in data files, so a real AI can replace it later without rewriting the UI.
+**This is v0.** By default the chat is fully hardcoded: the user taps reply chips. An optional **AI mode** (a toggle in the chat header) adds free-text questions answered by OpenAI `gpt-5-nano` through a small server endpoint, behind the same guardrails as the scripted chat (see [AI mode](#ai-mode)). Sign-in, email, bookings and adviser messages are mocks and are labelled "v0" in the UI. All scripted conversation content lives in data files.
 
 ## Run it
 
@@ -11,6 +11,8 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # type-checks (tsc -b), then builds to dist/
 ```
+
+AI mode needs `OPENAI_API_KEY` in `.env` (local) or in the Vercel project's environment variables (deployed). Without it, the toggle still appears and the chat shows a clear "not configured" error.
 
 Requires Node 20+. Stack: Vite 6, React 18, TypeScript, Tailwind CSS 4 and React Router 6.
 
@@ -21,7 +23,10 @@ Product context (persona, the four engagement measures, the phases) is in `docs/
 ## Project layout
 
 ```
+api/chat.ts                 Vercel Function: POST /api/chat
+server/aiChat.ts            AI mode server logic: prompt, JSON schema, OpenAI call, guardrails (also used by the Vite dev middleware)
 src/
+  ai/                       Wire types and the browser client for /api/chat
   content/
     newClientFlow.ts        Flow 1: every word of the new-client chat, landing, plan and handover copy
     existingClientFlow.ts   Flow 2: existing-client chat, dashboard, adviser, reply, correction notice
@@ -31,6 +36,7 @@ src/
     types.ts                Source, Option, Node, Flow, PlanStep
     engine.ts               Pure functions: choose(), visibleOptions(), buildSummary(), validateFlow()
     measures.ts             The four engagement measures and monitoring-log classification
+    guardrails.ts           Deterministic distress / personal-advice / figures checks, shared by browser and server
   state/store.ts            App state + actions + monitoring log, persisted to localStorage (try/catch wrapped)
   components/               Chat window, layout/header, dev panel, shared UI
   pages/                    One file per screen
@@ -135,6 +141,25 @@ Pain points P1 to P5 are referenced in comments where content addresses them.
 4. Press **D**, set **Advisor status** to Slow or Unavailable. Every page shows a banner. In the chat, Unavailable replaces the reply chips with a "Talk to a person" card.
 5. Press **D**, tap **Simulate a return visit**, then **Open $RUs staff view** (also in the footer). It shows the four engagement measures and the monitoring log, with advice-line and distress exchanges flagged for review.
 
+## AI mode
+
+Toggle **AI mode** in the chat header (both chats). The reply chips give way to a text box; action chips such as "Talk to an adviser" stay. The key is only read on the server: the browser calls `/api/chat`, which is `api/chat.ts` on Vercel and middleware in `vite.config.ts` during `npm run dev` and `npm run preview`.
+
+The same rules as the scripted chat, enforced in code where possible:
+
+| Rule | How AI mode enforces it |
+| --- | --- |
+| Distress leads to the support card | `detectDistress()` runs in the browser and again on the server. A match skips the model and shows the flow's vetted distress node (`flow.ai.distressNode`). |
+| Personal questions lead to a human | `detectPersonalAdvice()` forces `kind: 'personalAdvice'` whatever the model says. Those answers get the teal hand-off chip (`flow.ai.handover`). |
+| Source on every factual answer | The model can only cite source **ids** from `src/content/sources.ts` (a JSON-schema enum), so it can't invent links. Answers with no source are flagged "unchecked" and offer a human. |
+| No hardcoded caps or rates | The prompt forbids them. Replies that still contain a `$` figure or a `%` get a "check the source" note. |
+| AI disclosed | Answers are tagged "Generated", with a note that no person has checked them. |
+| Stays on topic | Off-topic requests get a fixed reply; the model's text is thrown away. |
+| Monitored | Every AI exchange is logged. Personal-advice and unsourced answers are flagged in `/staff`. |
+| Adviser summary | AI questions and topics flow into the Talk to a person summary like scripted ones. |
+
+Limits: questions up to 600 characters, the last 10 turns as context, 45-second timeout, `store: false` on the OpenAI request. There is no rate limiting or auth on `/api/chat` yet, so add both before a public pilot.
+
 ## Out of scope for v0
 
-Free-text input, AI/API calls, real authentication, real financial data, an adviser backend, email sending and payments. Anything that implies these is mocked and labelled "v0".
+Real authentication, real financial data, an adviser backend, email sending and payments. Anything that implies these is mocked and labelled "v0".

@@ -1,6 +1,6 @@
 # Future You
 
-A v0 prototype of an AI digital advisor web app for $RUs, a financial advice firm, built for a University of Sydney group assessment (A3). The chat is hardcoded, with reply chips instead of free text, and there is no backend. Everything persists to localStorage.
+A v0 prototype of an AI digital advisor web app for $RUs, a financial advice firm, built for a University of Sydney group assessment (A3). The chat is scripted by default (reply chips). An opt-in **AI mode** sends free text to OpenAI `gpt-5-nano` through `/api/chat` (`server/aiChat.ts`). Everything else persists to localStorage; there is no other backend.
 
 ## Commands
 
@@ -8,6 +8,8 @@ A v0 prototype of an AI digital advisor web app for $RUs, a financial advice fir
 npm run dev      # http://localhost:5173
 npm run build    # tsc -b then vite build. Run this before calling any change done.
 ```
+
+`OPENAI_API_KEY` lives in `.env` (gitignored). Never expose it to the browser: no `VITE_` prefix, and no OpenAI calls from `src/`.
 
 There is no test suite. Verify behaviour in the browser: press **D** for the dev panel, and check the console for `validateFlow()` errors.
 
@@ -28,6 +30,7 @@ There is no test suite. Verify behaviour in the browser: press **D** for the dev
 - **Anonymous by default.** Email or a private link is offered only when saving a plan.
 - **All user-facing copy lives in `src/content/`**, not in components. Keep that separation so a real AI can replace the tree later.
 - **Label mocks** "v0" in the UI (`V0Note`).
+- **AI mode guardrails are code, not just prompt.** Any new rule needs a deterministic check (`src/engine/guardrails.ts` or post-processing in `server/aiChat.ts`) as well as prompt text. Distress must never show model text.
 - **Scope:** don't build Phase 2 or 3 features (own-figures guidance, projections, aged selfie, ESG) unless asked. See `docs/product.md`.
 
 ## Session protocol

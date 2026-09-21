@@ -551,6 +551,7 @@ export const newClientFlow: Flow = {
   start: 'start',
   topicsNode: 'topics',
   nodes: Object.fromEntries(nodes.map((n) => [n.id, n])),
+  ai: { handover: TALK, distressNode: 'distress' },
   planOffer: {
     afterAnswers: 2,
     message: 'Want me to turn this into a plan? A few small steps, sized for lumpy income.', // P1, P4

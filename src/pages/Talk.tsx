@@ -38,7 +38,7 @@ function SummaryPreview({ includeStress }: { includeStress: boolean }) {
   return (
     <div className="space-y-4">
       <Section title="Topics covered" items={topics} />
-      <Section title="Questions you chose" items={questions} />
+      <Section title="Questions you asked" items={questions} />
       <Section title="Your plan steps" items={planSteps.map((s) => (s.done ? `${s.text} (done)` : s.text))} />
       {includeStress && <Section title="Also shared" items={['Mentioned that money stress is getting on top of them']} />}
     </div>

@@ -14,3 +14,16 @@ Append-only. Add one entry per session at the end of the file: the date, what ch
   - "What happens to my data?" (feature 1)
 - Set up `CLAUDE.md`, `docs/`, and a SessionStart hook that injects `docs/next-prompt.md`.
 - Build passes (`npm run build`). Flows were smoke-tested in Chrome with no console errors.
+
+## 2026-09-21 (later)
+
+- Added AI mode:
+  - A toggle in the chat header.
+  - Free text answered by OpenAI `gpt-5-nano` through `/api/chat`: `api/chat.ts` on Vercel, `vite.config.ts` middleware in dev.
+- Guardrails enforced in code:
+  - Distress skips the model.
+  - Personal-advice questions are forced into that shape.
+  - Sources come from an allowlist only.
+  - Off-topic replies are fixed text.
+  - Replies that quote figures get a note.
+- Tested live: sourced answer, personal-advice hand-off chip, distress support card, off-topic refusal, adviser summary, and `/staff` flags.

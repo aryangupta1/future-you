@@ -147,6 +147,17 @@ const nodes: Node[] = [
     sources: [sources.msPaydaySuper],
     options: [BACK],
   },
+  // Rule 5, reached from AI mode: same support card as Flow 1, but the human is her own adviser.
+  {
+    id: 'ec-distress',
+    kind: 'distress',
+    messages: [
+      `Thanks for telling me. Money stress is really common, and ${adviser.firstName} is there for exactly this.`,
+      "I'm an AI, not a support service. These people can properly help:",
+    ],
+    sources: [sources.ndh, sources.lifeline],
+    options: [{ label: 'Ask my adviser', next: 'ec-asked', action: 'askAdviser' }, BACK],
+  },
   {
     id: 'ec-asked',
     kind: 'adviser',
@@ -159,6 +170,7 @@ export const existingClientFlow: Flow = {
   id: 'existingClient',
   start: 'ec-start',
   topicsNode: 'ec-topics',
+  ai: { handover: { label: 'Ask my adviser', next: 'ec-asked', action: 'askAdviser' }, distressNode: 'ec-distress' },
   nodes: Object.fromEntries(nodes.map((n) => [n.id, n])),
 };
 

@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import type { Flow, Node, Option, OptionAction, PlanStep } from '../engine/types';
-import { choose, getNode, startChat, visibleOptions } from '../engine/engine';
-import { actions, setState, useAppState, type AppState, type ThreadEntry } from '../state/store';
+import { aiHistory, aiNeedsHuman, appendAi, choose, getNode, startChat, visibleOptions } from '../engine/engine';
+import { AI_LIMITS, detectDistress } from '../engine/guardrails';
+import { askAi } from '../ai/client';
+import { aiMode } from '../content/ai';
+import { actions, getState, setState, useAppState, type AppState, type ThreadEntry } from '../state/store';
 import { supportCard } from '../content/newClientFlow';
 import { chatUnavailable, serviceStatus } from '../content/service';
 import { AdviserNote, SourceList, Why, btn } from './ui';
@@ -30,10 +33,20 @@ const reducedMotion = () =>
 // Short typing pauses: P4/P5, she has no time for theatre.
 const typingDelay = (text: string) => (reducedMotion() ? 0 : Math.min(350 + text.length * 5, 1000));
 
-const messagesOf = (flow: Flow, entry: Extract<ThreadEntry, { type: 'node' }>) => [
-  ...getNode(flow, entry.nodeId).messages,
-  ...(entry.extra ?? []),
-];
+type BotEntry = Exclude<ThreadEntry, { type: 'user' }>;
+
+const messagesOf = (flow: Flow, entry: BotEntry) =>
+  entry.type === 'ai' ? entry.reply : [...getNode(flow, entry.nodeId).messages, ...(entry.extra ?? [])];
+
+/** AI answers render through NodeView, so they get the same bubbles, "Why?" and sources. */
+const aiAsNode = (entry: Extract<ThreadEntry, { type: 'ai' }>): Node => ({
+  id: 'ai',
+  messages: entry.reply,
+  kind: entry.kind === 'personalAdvice' ? 'personalAdvice' : 'normal',
+  why: entry.why,
+  sources: entry.sources,
+  options: [],
+});
 
 /**
  * Full-height chat window: header bar, scrolling thread, and a reply tray
@@ -44,6 +57,11 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
   const chat = useAppState((s) => s.chats[chatKey]);
   const planExists = useAppState((s) => s.plan !== null);
   const status = useAppState((s) => s.serviceStatus);
+  const aiOn = useAppState((s) => s.aiMode) && Boolean(flow.ai);
+  const [draft, setDraft] = useState('');
+  /** The question waiting on the model, shown as a user bubble until the answer lands. */
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<{ question: string; message: string } | null>(null);
   // Index of the thread entry currently being revealed, and how many of its
   // messages are visible. Not persisted: a reload shows everything at once.
   const [animating, setAnimating] = useState<{ index: number; shown: number } | null>(null);
@@ -68,7 +86,7 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
   useEffect(() => {
     if (!animating) return;
     const entry = chat.thread[animating.index];
-    if (!entry || entry.type !== 'node') {
+    if (!entry || entry.type === 'user') {
       setAnimating(null);
       return;
     }
@@ -103,7 +121,7 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
     const smooth = !firstScroll.current && !reducedMotion();
     firstScroll.current = false;
     el.scrollTo({ top: el.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
-  }, [animating, chat.thread.length]);
+  }, [animating, chat.thread.length, pendingQuestion, aiError]);
 
   const onChoose = (option: Option) => {
     if (animating) return;
@@ -116,8 +134,44 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
     setAnimating({ index: next.thread.length - 1, shown: 0 });
   };
 
-  const options = visibleOptions(flow, chat, planExists);
-  const busy = animating !== null || pendingNav.current !== null;
+  // AI mode: free text, same guardrails. Distress is caught here before any
+  // network call and lands on the vetted support card.
+  const sendAi = async (raw: string) => {
+    const question = raw.trim().slice(0, AI_LIMITS.questionChars);
+    if (!question || animating || pendingQuestion || !flow.ai) return;
+    setAiError(null);
+    setDraft('');
+    const history = aiHistory(flow, chat.thread);
+    const showDistress = () => {
+      const next = appendAi(flow, chat, question, { type: 'distress' });
+      actions.logChat(flow.id, question, flow.ai!.distressNode);
+      setChat(next);
+      setAnimating({ index: next.thread.length - 1, shown: 0 });
+    };
+    if (detectDistress(question)) return showDistress();
+
+    setPendingQuestion(question);
+    const res = await askAi({ flow: flow.id, question, history });
+    setPendingQuestion(null);
+    if (res.type === 'error') return setAiError({ question, message: res.message });
+    if (res.type === 'distress') return showDistress();
+    // Read the latest thread: the user may have tapped nothing, but state could have moved on.
+    const current = getState().chats[chatKey];
+    const next = appendAi(flow, current, question, res);
+    actions.logAi(flow.id, question, res.kind, res.sources.length);
+    setChat(next);
+    setAnimating({ index: next.thread.length - 1, shown: 0 });
+  };
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    void sendAi(draft);
+  };
+
+  const allOptions = visibleOptions(flow, chat, planExists);
+  // In AI mode the text box replaces topic chips; only actions (a person, the plan) stay as chips.
+  const options = aiOn ? allOptions.filter((o) => o.action && o.action !== 'addPlanStep') : allOptions;
+  const busy = animating !== null || pendingNav.current !== null || pendingQuestion !== null;
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem-1px)] flex-col">
@@ -131,13 +185,16 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
               Future You <AIBadge />
             </p>
             <p className="truncate text-[12px] text-neutral-600">
-              {busy && animating
+              {pendingQuestion
+                ? aiMode.thinking
+                : busy && animating
                 ? 'Typing…'
                 : status === 'ok'
                   ? 'General information only · replies instantly'
                   : serviceStatus[status].chatSubtitle}
             </p>
           </div>
+          {flow.ai && <AiToggle on={aiOn} />}
         </div>
       </div>
 
@@ -160,16 +217,58 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
                 </li>
               );
             }
-            const node = getNode(flow, entry.nodeId);
+            const node = entry.type === 'ai' ? aiAsNode(entry) : getNode(flow, entry.nodeId);
             const msgs = messagesOf(flow, entry);
             const isAnimating = animating?.index === i;
             const shown = isAnimating ? animating.shown : msgs.length;
             return (
               <li key={i}>
-                <NodeView node={node} messages={msgs.slice(0, shown)} typing={isAnimating} complete={!isAnimating} />
+                <NodeView
+                  node={node}
+                  messages={msgs.slice(0, shown)}
+                  typing={isAnimating}
+                  complete={!isAnimating}
+                  generated={entry.type === 'ai'}
+                  notes={entry.type === 'ai' ? <AiNotes entry={entry} /> : undefined}
+                />
               </li>
             );
           })}
+          {(pendingQuestion || aiError) && (
+            <li className="fade-up flex justify-end pl-10">
+              <p className="max-w-[85%] rounded-[20px] rounded-br-md bg-neutral-950 px-4 py-2.5 text-[15px] leading-relaxed text-white">
+                <span className="sr-only">You: </span>
+                {pendingQuestion ?? aiError?.question}
+              </p>
+            </li>
+          )}
+          {pendingQuestion && (
+            <li className="flex items-end gap-2">
+              <AIAvatar />
+              <TypingIndicator />
+            </li>
+          )}
+          {aiError && (
+            <li role="alert" className="fade-up rounded-2xl border border-neutral-300 bg-neutral-50 p-4 text-[14px]">
+              <p className="font-semibold">{aiMode.error}</p>
+              <p className="mt-1 text-neutral-700">{aiError.message}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button type="button" className={`${btn.secondary} !px-4 !py-2 text-[14px]`} onClick={() => void sendAi(aiError.question)}>
+                  {aiMode.retry}
+                </button>
+                <button
+                  type="button"
+                  className={`${btn.ghost}`}
+                  onClick={() => {
+                    setAiError(null);
+                    actions.setAiMode(false);
+                  }}
+                >
+                  {aiMode.switchToTopics}
+                </button>
+              </div>
+            </li>
+          )}
         </ol>
       </div>
 
@@ -178,10 +277,48 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
         <div className="mx-auto max-w-2xl px-4 pt-3 pb-2 sm:px-6">
           {status === 'down' && !busy ? (
             <ChatUnavailable talkTo={flow.id === 'existingClient' ? '/ask-adviser' : '/talk'} />
-          ) : busy ? (
+          ) : busy && !aiOn ? (
             <p className="flex h-10 items-center text-[14px] text-neutral-500">
               {animating ? 'Future You is typing…' : 'Opening…'}
             </p>
+          ) : aiOn ? (
+            <div className="fade-up space-y-2">
+              {options.length > 0 && !busy && (
+                <div className="flex flex-wrap gap-2" role="group" aria-label="Suggested actions">
+                  {options.map((o) => (
+                    <button key={o.label + o.next} type="button" onClick={() => onChoose(o)} className={chipClass(o, flow)}>
+                      {(o.action === 'handover' || o.action === 'askAdviser') && <PersonIcon width={16} height={16} />}
+                      <span>{o.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              <form onSubmit={onSubmit} className="flex items-end gap-2">
+                <label htmlFor="ai-input" className="sr-only">
+                  {aiMode.placeholder}
+                </label>
+                <textarea
+                  id="ai-input"
+                  rows={1}
+                  value={draft}
+                  maxLength={AI_LIMITS.questionChars}
+                  disabled={pendingQuestion !== null}
+                  placeholder={aiMode.placeholder}
+                  onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      void sendAi(draft);
+                    }
+                  }}
+                  className="max-h-32 min-h-11 flex-1 resize-none rounded-2xl border border-neutral-300 bg-white px-4 py-2.5 text-[16px] leading-snug placeholder:text-neutral-500 focus:border-neutral-950 focus:outline-none disabled:bg-neutral-50"
+                />
+                <button type="submit" disabled={!draft.trim() || busy} className={`${btn.primary} !h-11 !rounded-2xl !px-4`}>
+                  {aiMode.send}
+                </button>
+              </form>
+              <p className="text-[11px] text-neutral-500">{aiMode.privacyNote}</p>
+            </div>
           ) : (
             <div className="fade-up">
               <p className="mb-2 text-[12px] font-medium text-neutral-600">
@@ -203,7 +340,7 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
             </div>
           )}
           <div className="mt-2 flex items-center justify-between gap-3 text-[11px] text-neutral-500">
-            <span>AI · General information, not personal advice · v0</span>
+            <span>{aiOn ? aiMode.onNote : 'AI · General information, not personal advice · v0'}</span>
             <button type="button" onClick={toggleDevPanel} className="underline underline-offset-2 hover:text-neutral-950">
               Dev (D)
             </button>
@@ -228,6 +365,36 @@ function ChatUnavailable({ talkTo }: { talkTo: string }) {
           {chatUnavailable.back}
         </Link>
       </div>
+    </div>
+  );
+}
+
+function AiToggle({ on }: { on: boolean }) {
+  return (
+    <label className="ml-auto flex shrink-0 cursor-pointer items-center gap-2 text-[13px] font-medium text-neutral-800" title={aiMode.toggleHint}>
+      {aiMode.toggleLabel}
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        onClick={() => actions.setAiMode(!on)}
+        className={`relative h-6 w-10 rounded-full transition-colors ${on ? 'bg-neutral-950' : 'bg-neutral-300'}`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-4' : ''}`}
+        />
+      </button>
+    </label>
+  );
+}
+
+function AiNotes({ entry }: { entry: Extract<ThreadEntry, { type: 'ai' }> }) {
+  if (entry.kind === 'offTopic') return null;
+  return (
+    <div className="space-y-1.5 text-[12px] leading-relaxed text-neutral-600">
+      {entry.unsourced && <p className="font-medium text-neutral-800">{aiMode.unsourcedNote}</p>}
+      {entry.kind === 'personalAdvice' && <p>{aiMode.personalNote}</p>}
+      {!aiNeedsHuman(entry) && <p>{aiMode.generatedNote}</p>}
     </div>
   );
 }
@@ -268,11 +435,16 @@ function NodeView({
   messages,
   typing,
   complete,
+  generated = false,
+  notes,
 }: {
   node: Node;
   messages: string[];
   typing: boolean;
   complete: boolean;
+  /** AI-mode answer: labelled so it's never mistaken for reviewed content. */
+  generated?: boolean;
+  notes?: ReactNode;
 }) {
   const kind = node.kind ?? 'normal';
   const bubble =
@@ -281,7 +453,7 @@ function NodeView({
       : kind === 'personalAdvice'
         ? 'border border-neutral-300 bg-white'
         : 'bg-neutral-100';
-  const hasExtras = complete && (kind === 'distress' || node.adviserNote || node.why || node.sources?.length);
+  const hasExtras = complete && (kind === 'distress' || node.adviserNote || node.why || node.sources?.length || notes);
   const bubbleEl = (m: string, i: number) => (
     <p
       key={i}
@@ -300,6 +472,7 @@ function NodeView({
       <div className="min-w-0 flex-1 space-y-1">
         <p className="flex items-center gap-1.5 pl-1 text-[12px] text-neutral-600">
           Future You <AIBadge />
+          {generated && <span>· {aiMode.generatedTag}</span>}
           {kind === 'personalAdvice' && <span className="font-semibold text-neutral-800">· Needs personal advice</span>}
         </p>
         {messages.slice(0, node.messages.length).map((m, i) => bubbleEl(m, i))}
@@ -310,6 +483,7 @@ function NodeView({
             {node.adviserNote && <AdviserNote>{node.adviserNote}</AdviserNote>}
             {node.why && <Why text={node.why} />}
             {node.sources && node.sources.length > 0 && kind !== 'distress' && <SourceList sources={node.sources} />}
+            {notes}
           </div>
         )}
         {messages.slice(node.messages.length).map((m, i) => bubbleEl(m, node.messages.length + i))}

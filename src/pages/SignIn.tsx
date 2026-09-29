@@ -13,7 +13,7 @@ export function SignIn() {
   return (
     <Page>
       <div className="mx-auto max-w-sm">
-        <h1 className="display text-[38px]">{signIn.title}</h1>
+        <h1 className="display text-[30px] sm:text-[34px]">{signIn.title}</h1>
         <V0Note>{signIn.mockNote}</V0Note>
         <form
           className="mt-6 space-y-4"

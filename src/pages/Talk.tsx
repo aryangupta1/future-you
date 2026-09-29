@@ -8,7 +8,7 @@ import { PersonIcon } from '../components/icons';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { formatSlot } from '../engine/slots';
 
-// Rule 4: "Talk to a person", teal throughout. The visitor sees exactly what
+// Rule 4: "Talk to a person", Pacific Panorama throughout. The visitor sees exactly what
 // will be shared before sharing anything (rule 6: anonymous by default).
 
 function useSummary() {
@@ -24,7 +24,7 @@ function SummaryPreview({ includeStress }: { includeStress: boolean }) {
 
   const Section = ({ title, items }: { title: string; items: string[] }) => (
     <div>
-      <h3 className="text-[12px] font-semibold tracking-wide text-accent uppercase">{title}</h3>
+      <h3 className="pixel text-[12px] text-accent">{title}</h3>
       {items.length ? (
         <ul className="mt-1.5 list-disc space-y-1 pl-5 text-[15px] text-neutral-900">
           {items.map((t) => (
@@ -47,11 +47,11 @@ function SummaryPreview({ includeStress }: { includeStress: boolean }) {
   );
 }
 
-function TealHeading({ children }: { children: string }) {
+function AdviserHeading({ children }: { children: string }) {
   return (
     <div className="flex items-center gap-3">
       <AdviserAvatar size={44} />
-      <h1 className="display text-[36px] sm:text-[40px]">{children}</h1>
+      <h1 className="display text-[30px] sm:text-[34px]">{children}</h1>
     </div>
   );
 }
@@ -63,19 +63,19 @@ export function TalkConsent() {
 
   return (
     <Page>
-      <TealHeading>{handover.title}</TealHeading>
+      <AdviserHeading>{handover.title}</AdviserHeading>
       <p className="mt-4 text-[16px] leading-relaxed text-neutral-700">{handover.intro}</p>
 
       <section className="card mt-6 !bg-accent-tint p-5" aria-label={handover.summaryTitle}>
-        <h2 className="display mb-4 text-[26px]">{handover.summaryTitle}</h2>
+        <h2 className="display mb-4 text-[22px]">{handover.summaryTitle}</h2>
         <SummaryPreview includeStress={includeStress} />
         {mentionedStress && (
-          <label className="mt-5 flex cursor-pointer items-start gap-3 border-t border-ink/20 pt-4 text-[15px]">
+          <label className="mt-5 flex cursor-pointer items-start gap-3 border-t border-mist pt-4 text-[15px]">
             <input
               type="checkbox"
               checked={includeStress}
               onChange={(e) => setIncludeStress(e.target.checked)}
-              className="mt-1 h-4 w-4 accent-[#075b72]"
+              className="mt-1 h-4 w-4 accent-[#11425d]"
             />
             {handover.stressConsent}
           </label>
@@ -109,7 +109,7 @@ export function TalkDetails() {
 
   return (
     <Page>
-      <TealHeading>{handover.formTitle}</TealHeading>
+      <AdviserHeading>{handover.formTitle}</AdviserHeading>
       <form
         noValidate
         className="mt-6 space-y-5"
@@ -189,13 +189,13 @@ export function TalkConfirmed() {
 
   return (
     <Page>
-      <div className="card !bg-accent-fill p-6 !shadow-hard-lg">
-        <p className="flex items-center gap-2 text-[14px] font-semibold text-accent-dark">
+      <div className="card !bg-accent-fill p-6">
+        <p className="pixel flex items-center gap-2 text-[12px] text-accent-dark">
           <PersonIcon width={16} height={16} /> {handover.confirmedTitle}
         </p>
-        <p className="display mt-2 text-[40px]">{booking.slot}</p>
+        <p className="display mt-2 text-[34px]">{booking.slot}</p>
         <div className="mt-5 flex items-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-ink bg-white">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full border-[1.5px] border-ink bg-white">
             <PersonIcon width={24} height={24} />
           </span>
           <div>
@@ -210,7 +210,7 @@ export function TalkConfirmed() {
       </div>
 
       <section className="mt-6 card p-5">
-        <h2 className="display mb-4 text-[26px]">The summary they'll read</h2>
+        <h2 className="display mb-4 text-[22px]">The summary they'll read</h2>
         <SummaryPreview includeStress={booking.includeStress} />
       </section>
       <V0Note>{handover.mockNote}</V0Note>

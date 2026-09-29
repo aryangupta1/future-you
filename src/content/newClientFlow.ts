@@ -36,6 +36,7 @@ export const landing = {
 
   // A real answer from the tree, so the preview can never drift from the product.
   preview: {
+    tag: 'A real answer',
     question: "Do I have to pay my own super if I'm self-employed?",
     nodeId: 'super-must',
     messages: 2,
@@ -43,6 +44,7 @@ export const landing = {
 
   ask: {
     title: 'Ask something now',
+    tag: 'No sign-up',
     body: 'Tap a question. The answer opens in the chat, and nothing you tap is shared.',
     // Labels match the options in the tree, so the chat reads naturally.
     questions: [
@@ -58,6 +60,7 @@ export const landing = {
   // Persona pain points P1–P5, each followed through to what the product does (deck slide 9).
   painPoints: {
     title: 'Built for how you actually work',
+    tag: 'P1–P5',
     items: [
       { code: 'P1', pain: 'Income arrives in lumps', does: 'Check-ins when a payment lands, not on the first of the month.' },
       { code: 'P2', pain: 'Nobody pays your super', does: 'Plain-English super for the self-employed, every fact linked to the ATO or Moneysmart.' },
@@ -69,16 +72,18 @@ export const landing = {
 
   steps: {
     title: 'How it works',
+    tag: 'Four steps',
     items: [
-      { title: 'Ask anonymously', body: 'Tap a topic or type your own question in AI mode. No account.' },
-      { title: 'Get a sourced answer', body: 'Short, general information with a link you can check.' },
-      { title: 'Build a small plan', body: 'Three next steps, sized for income that arrives in lumps.' },
-      { title: 'Meet a person when you choose', body: 'A licensed $RUs adviser gets a summary first, so you start at your level.', human: true },
+      { icon: 'chat', title: 'Ask anonymously', body: 'Tap a topic or type your own question in AI mode. No account.' },
+      { icon: 'verified', title: 'Get a sourced answer', body: 'Short, general information with a link you can check.' },
+      { icon: 'yield', title: 'Build a small plan', body: 'Three next steps, sized for income that arrives in lumps.' },
+      { icon: 'person', title: 'Meet a person when you choose', body: 'A licensed $RUs adviser gets a summary first, so you start at your level.', human: true },
     ],
   },
 
   whyNow: {
     title: 'Why now',
+    tag: 'Verified_source',
     stats: [
       {
         // VERIFY: ASFA (March 2018), based on ABS 2015-16 data: "Around one-fifth (19 per cent) of the self-employed have no superannuation, compared with only 8 per cent of employees."
@@ -97,6 +102,7 @@ export const landing = {
 
   compare: {
     title: 'Your options today',
+    tag: 'Side by side',
     columns: ['Private', 'Checkable', 'Small first step'],
     rows: [
       { option: 'Search, social media, generic AI', values: [true, false, true] },
@@ -108,6 +114,7 @@ export const landing = {
   boundary: {
     title: 'General information here. Personal advice from a person.',
     body: "Future You explains how the rules work for everyone. Anything that depends on your own figures goes to a licensed $RUs adviser, and only when you ask.",
+    tag: 'The boundary',
     cta: 'Start a conversation',
   },
 
@@ -722,7 +729,7 @@ export const planPage = {
 };
 
 // ---------------------------------------------------------------------------
-// Talk to a person (rule 4). Teal throughout.
+// Talk to a person (rule 4). Pacific Panorama throughout.
 // ---------------------------------------------------------------------------
 
 export const handover = {

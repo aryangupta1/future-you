@@ -1,42 +1,63 @@
 @import "tailwindcss";
 
 /*
- * Design tokens from the Breezzy Framer template (breezzy.framer.ai):
- * ink outlines, hard offset shadows, a lime primary, sky and yellow tints,
- * Darker Grotesque for display type and Inter for everything else.
+ * Design tokens from the SRU's brand kit ("Future You · Visual Identity
+ * System" v1.1, 2026): a Praxeti White canvas, 1.5px Midnight Dreams outlines
+ * on key controls, 12–20px radii, flat surfaces (no drop shadows), a neon
+ * Isotonic Water highlight, Geist headings, Lunasima body text and Geist Pixel
+ * for technical accents, metadata and badges.
  *
  * Semantics this app layers on top:
- * - lime   = primary action (the AI side and the app itself)
- * - accent = a licensed human adviser. Sky fill, deep-blue text. Never used for the AI.
- * - sun    = notices (corrections, service status, v0 mocks)
- * All text sits on light fills, so contrast is ink-on-tint (AA or better).
+ * - lime   = primary action and active callouts (the AI side and the app itself)
+ * - accent = a licensed human adviser. Pacific Panorama fill, Neptune's Wrath text. Never used for the AI.
+ * - mist   = notices (corrections, service status, v0 mocks)
+ * - mantis = success and progress
+ * All text sits on fills with AA contrast or better (see README).
  */
 @theme {
-  --color-ink: #0d111b;
-  /* Tailwind's darkest neutral becomes Breezzy ink, so existing classes pick it up. */
-  --color-neutral-950: #0d111b;
+  /* Midnight Dreams: primary type and high-contrast cards. */
+  --color-ink: #002233;
+  /* Neptune's Wrath: secondary navy, structural borders, section tags. */
+  --color-navy: #11425d;
+  /* Praxeti White: the page canvas. */
+  --color-canvas: #f6f7ed;
 
-  --color-lime: #e4fdc4;
-  --color-lime-strong: #d0f7a0;
-  --color-lime-50: #f7fff0;
+  /* Isotonic Water: primary highlight. */
+  --color-lime: #ddff55;
+  --color-lime-strong: #c7e952;
+  --color-lime-50: #f6ffd4;
 
-  /* Human adviser. #075b72 on white = 7.3:1, on accent-tint = 6.8:1. */
-  --color-accent: #075b72;
-  --color-accent-dark: #04475a;
-  --color-accent-fill: #c3f1fd;
-  --color-accent-tint: #e3f9ff;
+  /* Human adviser. Pacific Panorama fill; #11425d on accent-fill = 7.2:1, on white = 10.7:1. */
+  --color-accent: #11425d;
+  --color-accent-dark: #0a3148;
+  --color-accent-fill: #c0d6ea;
+  --color-accent-tint: #e6eff7;
 
-  --color-sun: #f1ee83;
-  --color-sun-50: #fdfbc3;
+  /* Grape Mist: neutral borders, subtle lines and notices. */
+  --color-mist: #c5c0c9;
+  --color-mist-50: #eeecef;
 
-  --shadow-hard-sm: 2px 2px 0 0 #000;
-  --shadow-hard: 4px 4px 0 0 #000;
-  --shadow-hard-lg: 8px 8px 0 0 #000;
+  /* Mantis Green: positive metrics and success. Ink on mantis = 7.6:1. */
+  --color-mantis: #74c365;
 
-  --radius-card: 24px;
+  /* Greys are Midnight Dreams mixed into white, so meta text stays on-brand.
+     500 and darker pass AA on white and on the canvas. */
+  --color-neutral-50: #f0f2f0;
+  --color-neutral-200: #d9dee0;
+  --color-neutral-400: #8c9ca3;
+  --color-neutral-500: #526974;
+  --color-neutral-600: #445d69;
+  --color-neutral-700: #385360;
+  --color-neutral-800: #1f3d4b;
+  --color-neutral-900: #0f2f3f;
+  --color-neutral-950: #002233;
 
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Darker Grotesque", Inter, ui-sans-serif, system-ui, sans-serif;
+  --radius-card: 20px;
+
+  --font-sans: Lunasima, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-pixel: "Geist Pixel", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 html {
@@ -44,43 +65,65 @@ html {
 }
 
 body {
-  background: var(--color-lime-50);
+  background: var(--color-canvas);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Darker Grotesque runs small and tight, so display headings need more size and less leading than Inter. */
-.display {
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 0.95;
+/* Headings are Geist; body text and explanations stay in Lunasima. */
+@layer base {
+  h1, h2, h3, legend {
+    font-family: var(--font-heading);
+  }
 }
 
-/* Breezzy's card: white, 1px ink outline, hard shadow. */
+::selection {
+  background: var(--color-lime);
+  color: var(--color-ink);
+}
+
+/* Headings: Geist Regular / Medium. */
+.display {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+/* Technical accents, metadata and badges: Geist Pixel, uppercase, tracked out. */
+@utility pixel {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Brand card: white, 1.5px Midnight outline, flat. */
 @utility card {
   background-color: #fff;
-  border: 1px solid var(--color-ink);
+  border: 1.5px solid var(--color-ink);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-hard);
 }
 
-/* Pressable elements sink into their shadow. */
+/* Pressable elements lift slightly on hover and settle when pressed. */
 @utility press {
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition: transform 120ms ease, background-color 120ms ease;
   &:hover:not(:disabled) {
-    transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0 0 #000;
+    transform: translateY(-1px);
   }
   &:active:not(:disabled) {
-    transform: translate(2px, 2px);
-    box-shadow: 0 0 0 0 #000;
+    transform: translateY(0) scale(0.98);
   }
 }
 
 :focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;
+}
+
+/* On Midnight surfaces the focus ring switches to the neon highlight. */
+.on-dark :focus-visible {
+  outline-color: var(--color-lime);
 }
 
 @keyframes typing-dot {

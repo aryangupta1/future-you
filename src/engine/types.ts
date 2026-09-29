@@ -23,7 +23,7 @@ export type Node = {
   /** Optional "Why?" expander with the reasoning. */
   why?: string;
   sources?: Source[];
-  /** Controls styling. 'adviser' and 'personalAdvice' hand-offs use the teal accent. */
+  /** Controls styling. 'adviser' and 'personalAdvice' hand-offs use the Pacific Panorama accent. */
   kind?: NodeKind;
   /** Buttons the user can choose. The chosen label appears as the user's message. */
   options: Option[];

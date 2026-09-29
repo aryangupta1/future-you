@@ -41,7 +41,7 @@ export function AskAdviser() {
       <div className="flex items-center gap-3">
         <AdviserAvatar initials={adviser.initials} size={48} />
         <div>
-          <h1 className="display text-[34px]">{askAdviser.title}</h1>
+          <h1 className="display text-[30px] sm:text-[34px]">{askAdviser.title}</h1>
           <p className="text-[13px] text-neutral-600">
             {adviser.role} · {adviser.replyTime}
           </p>
@@ -54,14 +54,14 @@ export function AskAdviser() {
             <li key={i} className={`flex ${m.from === 'client' ? 'justify-end' : 'justify-start'}`}>
               <div
                 className={`max-w-[88%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${
-                  m.from === 'client' ? 'rounded-br-md border border-ink bg-ink text-white' : 'rounded-bl-md border border-ink bg-accent-tint text-ink'
+                  m.from === 'client' ? 'rounded-br-md border-[1.5px] border-ink bg-ink text-white' : 'rounded-bl-md border-[1.5px] border-ink bg-accent-tint text-ink'
                 }`}
               >
                 {m.from === 'adviser' && (
                   <p className="mb-1 flex flex-wrap items-center gap-2 text-[13px] font-semibold text-accent">
                     {adviser.name}
                     {m.simulated && (
-                      <span className="rounded-full border border-ink/40 bg-white px-1.5 text-[11px] font-medium text-neutral-700">
+                      <span className="rounded-full border-[1.5px] border-mist bg-white px-1.5 text-[11px] font-medium text-neutral-700">
                         {m.simulated === 'ai' ? askAdviser.simulatedAiTag : askAdviser.simulatedScriptTag}
                       </span>
                     )}
@@ -122,7 +122,7 @@ export function AskAdviser() {
         </label>
         <textarea id="msg" rows={3} value={text} onChange={(e) => setText(e.target.value)} className={`${inputCls} resize-y`} />
 
-        <div className="mt-3 rounded-xl border border-ink/30 bg-accent-tint p-3 text-[14px]">
+        <div className="mt-3 rounded-xl border-[1.5px] border-mist bg-accent-tint p-3 text-[14px]">
           <p className="font-medium">{askAdviser.contextTitle}</p>
           <ul className="mt-1 list-disc space-y-0.5 pl-5 text-neutral-700">
             <li>Your plan ({plan.filter((s) => s.done).length} of {plan.length} steps done)</li>
@@ -135,7 +135,7 @@ export function AskAdviser() {
             type="checkbox"
             checked={timeSensitive}
             onChange={(e) => setTimeSensitive(e.target.checked)}
-            className="h-4 w-4 accent-[#075b72]"
+            className="h-4 w-4 accent-[#11425d]"
           />
           {askAdviser.timeSensitiveLabel}
         </label>

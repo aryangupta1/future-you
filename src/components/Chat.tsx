@@ -177,11 +177,11 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
     <div className="flex h-full flex-col">
       {/* Chat header bar */}
       <div className="px-3 pt-3 sm:px-6">
-        <div className="mx-auto flex max-w-2xl items-center gap-3 rounded-2xl border border-ink bg-lime px-3 py-2.5 sm:px-4">
+        <div className="mx-auto flex max-w-2xl items-center gap-3 rounded-2xl border-[1.5px] border-ink bg-white px-3 py-2.5 sm:px-4">
           {leading}
           <AIAvatar size={36} />
           <div className="min-w-0 leading-tight">
-            <p className="flex items-center gap-1.5 text-[15px] font-semibold">
+            <p className="flex items-center gap-1.5 font-heading text-[15px] font-semibold">
               Future You <AIBadge />
             </p>
             <p className="truncate text-[12px] text-neutral-700">
@@ -203,14 +203,14 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
         <ol className="mx-auto max-w-2xl space-y-4 px-4 py-5 sm:px-6" aria-live="polite" aria-relevant="additions">
           {startNote && (
             <li className="flex justify-center">
-              <p className="rounded-full border border-ink bg-white px-3 py-1 text-center text-[12px] text-neutral-700">{startNote}</p>
+              <p className="rounded-full border-[1.5px] border-mist bg-white px-3 py-1 text-center text-[12px] text-neutral-700">{startNote}</p>
             </li>
           )}
           {chat.thread.map((entry, i) => {
             if (entry.type === 'user') {
               return (
                 <li key={i} className="fade-up flex justify-end pl-10">
-                  <p className="max-w-[85%] rounded-[20px] rounded-br-md border border-ink bg-ink px-4 py-2.5 text-[15px] leading-relaxed text-white">
+                  <p className="max-w-[85%] rounded-[20px] rounded-br-sm border-[1.5px] border-ink bg-ink px-4 py-2.5 text-[15px] leading-relaxed text-white">
                     <span className="sr-only">You: </span>
                     {entry.text}
                   </p>
@@ -236,7 +236,7 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
           })}
           {(pendingQuestion || aiError) && (
             <li className="fade-up flex justify-end pl-10">
-              <p className="max-w-[85%] rounded-[20px] rounded-br-md border border-ink bg-ink px-4 py-2.5 text-[15px] leading-relaxed text-white">
+              <p className="max-w-[85%] rounded-[20px] rounded-br-sm border-[1.5px] border-ink bg-ink px-4 py-2.5 text-[15px] leading-relaxed text-white">
                 <span className="sr-only">You: </span>
                 {pendingQuestion ?? aiError?.question}
               </p>
@@ -249,7 +249,7 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
             </li>
           )}
           {aiError && (
-            <li role="alert" className="fade-up rounded-2xl border border-ink bg-sun-50 p-4 text-[14px] shadow-hard-sm">
+            <li role="alert" className="fade-up rounded-2xl border-[1.5px] border-ink bg-mist-50 p-4 text-[14px]">
               <p className="font-semibold">{aiMode.error}</p>
               <p className="mt-1 text-neutral-700">{aiError.message}</p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -273,7 +273,7 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
       </div>
 
       {/* Reply tray */}
-      <div className="border-t border-ink bg-white pb-[env(safe-area-inset-bottom)]">
+      <div className="border-t-[1.5px] border-ink bg-white pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto max-w-2xl px-4 pt-3 pb-2 sm:px-6">
           {status === 'down' && !busy ? (
             <ChatUnavailable talkTo={flow.id === 'existingClient' ? '/ask-adviser' : '/talk'} />
@@ -311,7 +311,7 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
                       void sendAi(draft);
                     }
                   }}
-                  className="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-ink bg-white px-4 py-2.5 text-[16px] leading-snug placeholder:text-neutral-500 focus:shadow-hard-sm focus:outline-none disabled:bg-neutral-50"
+                  className="max-h-32 min-h-11 flex-1 resize-none rounded-xl border-[1.5px] border-ink bg-white px-4 py-2.5 text-[16px] leading-snug placeholder:text-neutral-500 focus:outline-none focus:ring-4 focus:ring-lime/70 disabled:bg-neutral-50"
                 />
                 <button type="submit" disabled={!draft.trim() || busy} className={`${btn.primary} !h-11 !px-4`}>
                   {aiMode.send}
@@ -321,9 +321,9 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
             </div>
           ) : (
             <div className="fade-up">
-              <p className="mb-2 text-[12px] font-medium text-neutral-600">
+              <p className="pixel mb-2 text-[11px] text-neutral-600">
                 Tap a reply
-                {status === 'slow' && <span className="font-normal"> · {serviceStatus.slow.trayNote}</span>}
+                {status === 'slow' && <span className="font-sans normal-case tracking-normal"> · {serviceStatus.slow.trayNote}</span>}
               </p>
               <div
                 className="flex max-h-[38dvh] flex-wrap gap-2 overflow-y-auto pb-1"
@@ -354,7 +354,7 @@ export function Chat({ flow, chatKey, planTemplate, onNavigate, leading, startNo
 // Feature 8: say plainly that no reply is coming, and offer a person instead.
 function ChatUnavailable({ talkTo }: { talkTo: string }) {
   return (
-    <div role="status" className="fade-up rounded-2xl border border-ink bg-sun-50 p-4 shadow-hard-sm">
+    <div role="status" className="fade-up rounded-2xl border-[1.5px] border-ink bg-mist-50 p-4">
       <p className="text-[15px] font-semibold">{chatUnavailable.title}</p>
       <p className="mt-1 text-[14px] text-neutral-700">{chatUnavailable.body}</p>
       <div className="mt-3 flex flex-wrap gap-2">
@@ -371,17 +371,17 @@ function ChatUnavailable({ talkTo }: { talkTo: string }) {
 
 function AiToggle({ on }: { on: boolean }) {
   return (
-    <label className="ml-auto flex shrink-0 cursor-pointer items-center gap-2 text-[13px] font-semibold text-ink" title={aiMode.toggleHint}>
+    <label className="ml-auto flex shrink-0 cursor-pointer items-center gap-2 font-heading text-[13px] font-semibold text-ink" title={aiMode.toggleHint}>
       {aiMode.toggleLabel}
       <button
         type="button"
         role="switch"
         aria-checked={on}
         onClick={() => actions.setAiMode(!on)}
-        className={`relative h-6 w-10 rounded-full border border-ink transition-colors ${on ? 'bg-ink' : 'bg-white'}`}
+        className={`relative h-6 w-10 rounded-full border-[1.5px] border-ink transition-colors ${on ? 'bg-ink' : 'bg-white'}`}
       >
         <span
-          className={`absolute top-px left-px h-5 w-5 rounded-full border border-ink transition-transform ${on ? 'translate-x-4 bg-lime' : 'bg-white'}`}
+          className={`absolute top-px left-px h-5 w-5 rounded-full border-[1.5px] border-ink transition-transform ${on ? 'translate-x-4 bg-lime' : 'bg-white'}`}
         />
       </button>
     </label>
@@ -401,18 +401,18 @@ function AiNotes({ entry }: { entry: Extract<ThreadEntry, { type: 'ai' }> }) {
 
 function chipClass(o: Option, flow: Flow) {
   const base =
-    'press inline-flex max-w-full items-center gap-1.5 rounded-full border border-ink px-4 py-2 text-left text-[14px] font-medium leading-snug text-ink';
-  if (o.action === 'handover' || o.action === 'askAdviser') return `${base} bg-accent-fill shadow-hard-sm`;
+    'press inline-flex max-w-full items-center gap-1.5 rounded-full border-[1.5px] border-ink px-4 py-2 text-left font-heading text-[14px] font-medium leading-snug text-ink';
+  if (o.action === 'handover' || o.action === 'askAdviser') return `${base} bg-accent-fill`;
   if (o.next === flow.topicsNode && o.label.startsWith('Back'))
     return `${base.replace('press ', '')} border-dashed bg-transparent text-neutral-700 hover:bg-white hover:text-ink`;
-  if (o.action === 'savePlan' || o.action === 'openPlan') return `${base} bg-lime shadow-hard-sm`;
-  return `${base} bg-white shadow-hard-sm hover:bg-lime-50`;
+  if (o.action === 'savePlan' || o.action === 'openPlan') return `${base} bg-lime`;
+  return `${base} bg-white hover:bg-lime-50`;
 }
 
 function AIAvatar({ size = 28 }: { size?: number }) {
   return (
     <span
-      className="flex shrink-0 items-center justify-center rounded-full border border-ink bg-white text-ink"
+      className="flex shrink-0 items-center justify-center rounded-full border-[1.5px] border-ink bg-lime text-ink"
       style={{ width: size, height: size }}
       aria-hidden
     >
@@ -423,7 +423,7 @@ function AIAvatar({ size = 28 }: { size?: number }) {
 
 function AIBadge() {
   return (
-    <span className="rounded-md border border-ink bg-white px-1 py-px text-[10px] font-semibold tracking-wide text-ink">
+    <span className="pixel rounded-md border-[1.5px] border-ink bg-white px-1 py-px text-[10px] text-ink">
       AI
     </span>
   );
@@ -448,16 +448,16 @@ function NodeView({
   const kind = node.kind ?? 'normal';
   const bubble =
     kind === 'adviser'
-      ? 'border border-ink bg-accent-tint'
+      ? 'border-[1.5px] border-ink bg-accent-tint'
       : kind === 'personalAdvice'
-        ? 'border border-dashed border-ink bg-white'
-        : 'border border-ink bg-white';
+        ? 'border-[1.5px] border-dashed border-ink bg-white'
+        : 'border-[1.5px] border-ink bg-white';
   const hasExtras = complete && (kind === 'distress' || node.adviserNote || node.why || node.sources?.length || notes);
   const bubbleEl = (m: string, i: number) => (
     <p
       key={i}
       className={`fade-up w-fit max-w-full whitespace-pre-line rounded-[20px] px-4 py-2.5 text-[15px] leading-relaxed ${bubble} ${
-        i === 0 ? 'rounded-tl-md' : ''
+        i === 0 ? 'rounded-tl-sm' : ''
       }`}
     >
       {m}
@@ -469,17 +469,17 @@ function NodeView({
       {/* One avatar per group, aligned to the latest bubble like a messaging app. */}
       <AIAvatar />
       <div className="min-w-0 flex-1 space-y-1">
-        <p className="flex items-center gap-1.5 pl-1 text-[12px] text-neutral-700">
+        <p className="flex flex-wrap items-center gap-1.5 pl-1 font-heading text-[12px] text-neutral-700">
           Future You <AIBadge />
           {generated && <span>· {aiMode.generatedTag}</span>}
           {kind === 'personalAdvice' && (
-            <span className="rounded-full border border-ink bg-sun px-1.5 py-px text-[11px] font-semibold text-ink">Needs personal advice</span>
+            <span className="pixel rounded-full border-[1.5px] border-ink bg-mist px-2 py-px text-[10px] text-ink">Needs personal advice</span>
           )}
         </p>
         {messages.slice(0, node.messages.length).map((m, i) => bubbleEl(m, i))}
         {/* Sources and "Why?" belong to the answer, so they sit before any appended follow-up. */}
         {hasExtras && (
-          <div className="fade-up w-full space-y-3 rounded-[20px] border border-ink bg-white p-3 shadow-hard-sm sm:p-4">
+          <div className="fade-up w-full space-y-3 rounded-[20px] border-[1.5px] border-ink bg-white p-3 sm:p-4">
             {kind === 'distress' && <SupportCard />}
             {node.adviserNote && <AdviserNote>{node.adviserNote}</AdviserNote>}
             {node.why && <Why text={node.why} />}
@@ -496,7 +496,7 @@ function NodeView({
 
 function TypingIndicator() {
   return (
-    <div className="flex w-fit items-center gap-1 rounded-[20px] rounded-bl-md border border-ink bg-white px-4 py-3.5" aria-label="The AI is typing">
+    <div className="flex w-fit items-center gap-1 rounded-[20px] rounded-bl-sm border-[1.5px] border-ink bg-white px-4 py-3.5" aria-label="The AI is typing">
       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-ink" />
       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-ink" />
       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-ink" />
@@ -508,8 +508,8 @@ function TypingIndicator() {
 export function SupportCard() {
   return (
     <section aria-label={supportCard.title}>
-      <h3 className="text-[15px] font-semibold">{supportCard.title}</h3>
-      <ul className="mt-3 divide-y divide-ink/15">
+      <h3 className="font-heading text-[15px] font-semibold">{supportCard.title}</h3>
+      <ul className="mt-3 divide-y divide-mist">
         {supportCard.contacts.map((c) => (
           <li key={c.name} className="flex flex-wrap items-center justify-between gap-3 py-3">
             <div className="min-w-0">

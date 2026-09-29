@@ -37,15 +37,15 @@ export function DevPanel() {
 
   if (!open) return null;
 
-  const item = 'w-full rounded-lg border border-neutral-700 px-3 py-2 text-left text-[13px] hover:bg-neutral-800';
+  const item = 'w-full rounded-xl border border-white/15 px-3 py-2 text-left text-[13px] hover:bg-navy';
 
   return (
     <aside
       aria-label="Developer panel"
-      className="fixed inset-x-3 bottom-3 z-50 rounded-2xl bg-neutral-950 p-4 text-white shadow-2xl sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-72"
+      className="on-dark fixed inset-x-3 bottom-3 z-50 rounded-[20px] border-b-[3px] border-lime bg-ink p-4 text-white shadow-2xl sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-72"
     >
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-[13px] font-semibold">Dev panel · v0</p>
+        <p className="pixel text-[12px] text-lime">Dev panel · v0</p>
         <button type="button" onClick={() => setOpen(false)} className="text-[13px] text-neutral-400 hover:text-white">
           Close (D)
         </button>
@@ -91,7 +91,7 @@ export function DevPanel() {
           <select
             value={serviceStatus}
             onChange={(e) => actions.setServiceStatus(e.target.value as ServiceStatus)}
-            className="rounded bg-neutral-800 px-1.5 py-0.5 text-[13px]"
+            className="rounded-md bg-navy px-1.5 py-0.5 text-[13px]"
           >
             <option value="ok">Normal</option>
             <option value="slow">Slow</option>

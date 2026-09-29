@@ -4,7 +4,7 @@ import { availableSlots, dayKey, formatDay, formatTime } from '../engine/slots';
 
 // Booking picker in the Calendly / Cal.com pattern: a month grid of days with
 // free times, then the times for the chosen day. Sky blue throughout because
-// this is a human-adviser moment.
+// this is a human-adviser moment (Pacific Panorama).
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -67,7 +67,7 @@ export function BookingCalendar({ value, onChange }: { value: Date | null; onCha
     <div className="card grid gap-5 p-4 sm:grid-cols-[1fr_200px] sm:p-5">
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <p className="display text-[24px] leading-none" aria-live="polite">
+          <p className="display text-[20px] leading-none" aria-live="polite">
             {monthLabel}
           </p>
           <div className="flex gap-1.5">
@@ -81,7 +81,7 @@ export function BookingCalendar({ value, onChange }: { value: Date | null; onCha
                 disabled={!b.ok}
                 onClick={() => shiftMonth(b.d)}
                 aria-label={b.label}
-                className="press flex h-9 w-9 items-center justify-center rounded-lg border border-ink bg-white text-[20px] leading-none shadow-hard-sm hover:bg-accent-tint disabled:opacity-30 disabled:shadow-none"
+                className="press flex h-9 w-9 items-center justify-center rounded-lg border-[1.5px] border-ink bg-white text-[20px] leading-none hover:bg-accent-tint disabled:opacity-30"
               >
                 {b.glyph}
               </button>
@@ -89,7 +89,7 @@ export function BookingCalendar({ value, onChange }: { value: Date | null; onCha
           </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center text-[12px] font-semibold tracking-wide text-neutral-600 uppercase" aria-hidden>
+        <div className="pixel grid grid-cols-7 gap-1 text-center text-[11px] text-neutral-600" aria-hidden>
           {WEEKDAYS.map((w) => (
             <span key={w} className="py-1">
               {w}
@@ -114,9 +114,9 @@ export function BookingCalendar({ value, onChange }: { value: Date | null; onCha
                 onClick={() => free && pickDay(key)}
                 className={`flex aspect-square items-center justify-center rounded-lg text-[15px] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ink ${
                   selected
-                    ? 'border border-ink bg-accent-fill font-semibold shadow-hard-sm'
+                    ? 'border-[1.5px] border-ink bg-accent-fill font-semibold'
                     : free
-                      ? 'border border-ink/30 bg-accent-tint font-semibold text-accent-dark hover:border-ink'
+                      ? 'border-[1.5px] border-mist bg-accent-tint font-semibold text-accent-dark hover:border-ink'
                       : 'cursor-default text-neutral-400'
                 }`}
               >
@@ -128,7 +128,7 @@ export function BookingCalendar({ value, onChange }: { value: Date | null; onCha
         <p className="mt-3 text-[13px] text-neutral-600">{handover.timeZoneNote}</p>
       </div>
 
-      <div className="sm:border-l sm:border-ink/20 sm:pl-5">
+      <div className="sm:border-l sm:border-mist sm:pl-5">
         {selectedDay ? (
           <>
             <p className="mb-2 text-[14px] font-medium">
@@ -146,8 +146,8 @@ export function BookingCalendar({ value, onChange }: { value: Date | null; onCha
                       role="radio"
                       aria-checked={on}
                       onClick={() => onChange(t)}
-                      className={`press rounded-xl border border-ink px-3 py-2.5 text-[15px] font-medium ${
-                        on ? 'bg-accent-fill shadow-hard-sm' : 'bg-white hover:bg-accent-tint'
+                      className={`press rounded-xl border-[1.5px] border-ink px-3 py-2.5 text-[15px] font-medium ${
+                        on ? 'bg-accent-fill' : 'bg-white hover:bg-accent-tint'
                       }`}
                     >
                       {formatTime(t)}

@@ -16,17 +16,24 @@ AI mode needs `OPENAI_API_KEY` in `.env` (local) or in the Vercel project's envi
 
 Requires Node 20+. Stack: Vite 6, React 18, TypeScript, Tailwind CSS 4 and React Router 6.
 
-**Design system.** The styling follows the [Breezzy](https://breezzy.framer.ai/) Framer template. `src/index.css` defines it as Tailwind tokens:
+**Design system.** The styling follows the SRU's brand kit ("Future You · Visual Identity System" v1.1, 2026). `src/index.css` defines it as Tailwind tokens:
 
-| Token | Value | Used for |
+| Token | Brand name / value | Used for |
 | --- | --- | --- |
-| `ink` | `#0d111b` | Text, 1px outlines, user bubbles |
-| `lime` / `lime-50` | `#e4fdc4` / `#f7fff0` | Primary buttons, the chat bar / page background |
-| `accent-fill` / `accent-tint` / `accent` | `#c3f1fd` / `#e3f9ff` / `#075b72` | Human-adviser moments only |
-| `sun` / `sun-50` | `#f1ee83` / `#fdfbc3` | Notices, flags, v0 notes |
-| `shadow-hard-sm` / `shadow-hard` / `shadow-hard-lg` | 2 / 4 / 8px offset, no blur | Buttons, cards, confirmation |
-| `card`, `press` | utilities | Outlined white card; press-down hover on buttons |
-| `.display` | Darker Grotesque 700 | Page and section headings |
+| `ink` | Midnight Dreams `#002233` | Text, 1.5px outlines on key controls, user bubbles, the header band, dark cards |
+| `navy` | Neptune's Wrath `#11425d` | Pixel section tags, structural borders on dark tiles |
+| `canvas` | Praxeti White `#f6f7ed` | Page background |
+| `lime` / `lime-50` | Isotonic Water `#ddff55` / `#f6ffd4` | Primary buttons, active callouts, the AI avatar |
+| `accent-fill` / `accent-tint` / `accent` | Pacific Panorama `#c0d6ea` / `#e6eff7` / Neptune `#11425d` | Human-adviser moments only |
+| `mist` / `mist-50` | Grape Mist `#c5c0c9` / `#eeecef` | Subtle lines, notices, flags, v0 notes |
+| `mantis` | Mantis Green `#74c365` | Success and progress (done steps, "Met", progress bars) |
+| `neutral-*` | Midnight mixed into white | Meta text. 500 and darker pass AA on white and the canvas |
+| `card`, `press` | utilities | White card with a 1.5px ink outline and 20px radius; a slight lift on hover. Flat, no drop shadows |
+| `.display`, `h1`–`h3` | Geist 500 | Headings |
+| body | Lunasima 400/700 | Body text and explanations |
+| `pixel` | Geist Pixel, uppercase | Technical accents, metadata and badges (`PixelTag`, `SectionHeading`, "Source:") |
+
+Icons use a 2px uniform stroke (`src/components/icons.tsx`), including the kit's YIELD, SECURITY, ADVICE and VERIFIED glyphs.
 
 Fonts load from Google Fonts in `index.html`.
 
@@ -83,7 +90,7 @@ type Option = {
 };
 ```
 
-- **kind** controls styling. `personalAdvice` shows a "Needs personal advice" label and outlined bubbles. `distress` adds the support card. `adviser` uses the teal tint. Options with `handover` or `askAdviser` always render as teal chips.
+- **kind** controls styling. `personalAdvice` shows a "Needs personal advice" label and outlined bubbles. `distress` adds the support card. `adviser` uses the Pacific Panorama tint. Options with `handover` or `askAdviser` always render as Pacific Panorama chips.
 - **Actions.** `addPlanStep` adds `planStep` to My Plan. `savePlan` creates the plan and opens My Plan. `handover` opens Talk to a person. `askAdviser` opens Ask my adviser with the last question pre-filled. Navigation happens after the `next` node has finished typing.
 - **Plan offer.** `flow.planOffer` appends a one-off "Want me to turn this into a plan?" message once the user has read `afterAnswers` factual answers (nodes with sources). After that, the offer chip stays available until a plan exists. It is never shown under the distress card.
 - **Adviser summary.** `buildSummary()` collects the topics covered and the questions that led to an answer or a personal-advice node. The distress mention is only shared if the user ticks a box.
@@ -135,7 +142,7 @@ Pain points P1 to P5 are referenced in comments where content addresses them.
 1. Open `/` and tap **Start a conversation**. The AI says it's an AI, that it gives general information only, and that no account is needed.
 2. Tap **Super for the self-employed**, then **Do I have to pay my own super if I'm self-employed?** Note the sources and the "Why?" expander.
 3. Tap **How does claiming a deduction work?** After this second answer, the AI offers to turn the chat into a plan.
-4. Tap **I've got $40k saved. Should I put $20k into super?** The AI explains the personal-advice line, gives the general rules, and offers a teal **Talk to an adviser**.
+4. Tap **I've got $40k saved. Should I put $20k into super?** The AI explains the personal-advice line, gives the general rules, and offers a sky-blue **Talk to an adviser**.
 5. Back to topics, then tap **Honestly, money stress…** to see the support card (an $RUs adviser, National Debt Helpline, Lifeline).
 6. Tap **Yes, turn this into a plan**. My Plan opens. Tick a step, **Save my plan**, then skip or fill in the optional email.
 7. Reload `/`. The **Welcome back** card replaces the start buttons.
@@ -144,8 +151,8 @@ Pain points P1 to P5 are referenced in comments where content addresses them.
 **Flow 2: existing client**
 
 1. On `/`, tap **I'm an existing $RUs client**, then **Demo sign-in**.
-2. The dashboard shows the plan with a teal **From your adviser** step, plus Priya's card.
-3. **Open the AI chat**, then tap **What's the deadline for a deductible super contribution?** You get a general answer with a source and a teal note that Priya's recorded step stands.
+2. The dashboard shows the plan with a sky-blue **From your adviser** step, plus Priya's card.
+3. **Open the AI chat**, then tap **What's the deadline for a deductible super contribution?** You get a general answer with a source and a sky-blue note that Priya's recorded step stands.
 4. Tap **So how much should I put in this year?** This is personal advice, so it offers **Ask my adviser**. The message page opens with the question pre-filled and context attached.
 5. Tick **time-sensitive** and **Send**, then **Simulate adviser reply**. Priya's reply is generated by AI (labelled "Simulated by AI · v0") from your messages, what you asked the AI chat, and your plan. It may add one "From your adviser" step to your plan. Without an API key, or if the AI breaks a rule, the scripted reply is used instead and the page says so.
 6. Press **D** and turn on **Show correction notice** to see the dashboard banner, including what $RUs is doing about it.
@@ -167,7 +174,7 @@ The same rules as the scripted chat, enforced in code where possible:
 | Rule | How AI mode enforces it |
 | --- | --- |
 | Distress leads to the support card | `detectDistress()` runs in the browser and again on the server. A match skips the model and shows the flow's vetted distress node (`flow.ai.distressNode`). |
-| Personal questions lead to a human | `detectPersonalAdvice()` forces `kind: 'personalAdvice'` whatever the model says. Those answers get the teal hand-off chip (`flow.ai.handover`). |
+| Personal questions lead to a human | `detectPersonalAdvice()` forces `kind: 'personalAdvice'` whatever the model says. Those answers get the sky-blue hand-off chip (`flow.ai.handover`). |
 | Source on every factual answer | The model can only cite source **ids** from `src/content/sources.ts` (a JSON-schema enum), so it can't invent links. Answers with no source are flagged "unchecked" and offer a human. |
 | No hardcoded caps or rates | The prompt forbids them. Replies that still contain a `$` figure or a `%` get a "check the source" note. |
 | AI disclosed | Answers are tagged "Generated", with a note that no person has checked them. |

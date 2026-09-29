@@ -56,3 +56,14 @@ Append-only. Add one entry per session at the end of the file: the date, what ch
   - Monday-first weeks, arrow-key navigation, sky (adviser) colours, and times in the visitor's time zone.
 - Added an optional email field after phone, with format validation only when it's filled in. `Handover` gains `email?` and `slotAt?` (ISO). The confirmation mentions the email if one was given.
 - Build passes. Checked in the browser: pick a day and time, invalid-email error, and the confirmation page.
+
+## 2026-09-29 (SRU's brand kit)
+
+- Replaced the Breezzy styling with the SRU's brand kit PDF ("Future You · Visual Identity System" v1.1):
+  - Tokens in `src/index.css`: the seven brand colours, midnight-tinted greys, 20px card radius, no hard shadows. `sun` is renamed `mist` (Grape Mist) for notices; `mantis` is new for success.
+  - Fonts in `index.html`: Geist (headings, buttons, chips), Lunasima (body), Geist Pixel (badges and metadata, via the `pixel` utility).
+  - Components: a Midnight header band with a lime rule, `PixelTag` and `SectionHeading` in `ui.tsx`, 1.5px outlines, 2px icon stroke, plus the kit's icons (`YieldIcon`, `LockIcon`, `VerifiedIcon`). The chat icon is now the kit's ADVICE glyph.
+  - Landing page follows the kit's pattern library: pills and action badges, the value prop grid ("01"–"05"), dark icon tiles for "How it works" (the human step stays Pacific Panorama), the data and citation card, and a Midnight closing CTA. Section tags and step icons live in `landing` content.
+  - Dev panel, favicon and theme-color restyled to match.
+- Build passes. Checked in Chrome at desktop width and at 390px (via same-origin iframes, since window resize doesn't take): landing, chat, booking, plan, sign-in, dashboard, ask-adviser, staff. No horizontal overflow. Tightened the header for phones.
+

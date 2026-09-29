@@ -175,7 +175,7 @@ export const existingClientFlow: Flow = {
 };
 
 // ---------------------------------------------------------------------------
-// Ask my adviser (teal)
+// Ask my adviser (Pacific Panorama accent)
 // ---------------------------------------------------------------------------
 
 export const askAdviser = {

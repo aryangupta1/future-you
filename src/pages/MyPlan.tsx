@@ -16,7 +16,7 @@ export function MyPlan() {
   if (!plan) {
     return (
       <Page>
-        <h1 className="display text-[40px]">{planPage.title}</h1>
+        <h1 className="display text-[30px] sm:text-[34px]">{planPage.title}</h1>
         <p className="mt-3 text-[16px] text-neutral-700">{planPage.empty}</p>
         <Link to="/chat" className={`${btn.primary} mt-6`}>
           Go to the chat
@@ -29,9 +29,9 @@ export function MyPlan() {
 
   return (
     <Page>
-      <h1 className="display text-[40px]">{planPage.title}</h1>
+      <h1 className="display text-[30px] sm:text-[34px]">{planPage.title}</h1>
       <p className="mt-2 text-[16px] text-neutral-700">{planPage.intro}</p>
-      <p className="mt-4 text-[13px] font-medium text-neutral-600">
+      <p className="pixel mt-4 text-[12px] text-neutral-600">
         {done} of {plan.steps.length} done
       </p>
       <div className="mt-3">
@@ -45,7 +45,10 @@ export function MyPlan() {
       ) : (
         <>
           <p className="mt-6 flex items-center gap-2 text-[14px] text-neutral-700">
-            <CheckIcon width={18} height={18} /> {planPage.savedNote}
+            <span className="flex h-6 w-6 items-center justify-center rounded-full border-[1.5px] border-ink bg-mantis text-ink">
+              <CheckIcon width={14} height={14} />
+            </span>
+            {planPage.savedNote}
           </p>
 
           {/* Rule 6: email is optional and only offered after saving a plan. */}
@@ -123,7 +126,7 @@ export function MyPlan() {
                 <label
                   key={o.value}
                   className={`flex cursor-pointer gap-3 rounded-xl border px-4 py-3 ${
-                    plan.checkIns === o.value ? 'border-ink bg-lime shadow-hard-sm' : 'border-ink bg-white hover:bg-lime-50'
+                    plan.checkIns === o.value ? 'border-ink bg-lime' : 'border-ink bg-white hover:bg-lime-50'
                   }`}
                 >
                   <input

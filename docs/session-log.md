@@ -67,3 +67,10 @@ Append-only. Add one entry per session at the end of the file: the date, what ch
   - Dev panel, favicon and theme-color restyled to match.
 - Build passes. Checked in Chrome at desktop width and at 390px (via same-origin iframes, since window resize doesn't take): landing, chat, booking, plan, sign-in, dashboard, ask-adviser, staff. No horizontal overflow. Tightened the header for phones.
 
+## 2026-10-06 (logo and favicon)
+
+- Added the team's $RUs Future You logo and favicon as `public/brand/logo.png` and `public/brand/favicon.png` (renamed from the attached `$RUs FUTURE YOU *.png`).
+  - The header's `LogoMark` (`src/components/Layout.tsx`) now shows the logo (32px on phones, 36px from `sm`) in place of the placeholder lime stripes tile.
+  - `index.html` links the PNG favicon and uses the logo as the Apple touch icon. Removed the old `public/favicon.svg`.
+  - README documents both files.
+- Build passes. Checked in Chrome at desktop width and at 390px (same-origin iframe): the logo renders in the header with no horizontal overflow.

@@ -43,15 +43,9 @@ function Header() {
   );
 }
 
-// Diagonal stripes: a plain signifier for the app, Midnight on Isotonic Water.
+// The $RUs Future You app icon (public/brand/logo.png): hands holding a dollar card.
 function LogoMark() {
-  return (
-    <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-lime text-ink sm:h-8 sm:w-8">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
-        <path d="M3 11 9 5M7 15l8-8M12 16l3-3" />
-      </svg>
-    </span>
-  );
+  return <img src="/brand/logo.png" alt="" aria-hidden className="h-8 w-8 shrink-0 rounded-lg sm:h-9 sm:w-9" />;
 }
 
 // Feature 8 (A2, A5): the moment the advisor is slow or down, every page says so.

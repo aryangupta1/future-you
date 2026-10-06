@@ -37,6 +37,8 @@ Icons use a 2px uniform stroke (`src/components/icons.tsx`), including the kit's
 
 Fonts load from Google Fonts in `index.html`.
 
+**Logo and favicon.** The $RUs Future You app icon (hands holding a dollar card) is `public/brand/logo.png` (307×307). It's the header mark (`LogoMark` in `src/components/Layout.tsx`) and the Apple touch icon. The browser-tab favicon is `public/brand/favicon.png` (129×129, the dollar card alone). Both are linked in `index.html`. To swap either, replace the file and keep the name.
+
 Press **D** anywhere (or tap "Dev" in the footer or chat tray) to open the dev panel. From there you can reset all state, jump to Flow 1 or Flow 2, simulate an adviser reply, show or hide the correction notice, set the advisor status (normal, slow or unavailable), simulate a return visit, and open the $RUs staff view.
 
 Product context (persona, the four engagement measures, the phases) is in `docs/product.md`, and build status against the ranked backlog is in `docs/backlog.md`.
@@ -46,6 +48,7 @@ Product context (persona, the four engagement measures, the phases) is in `docs/
 ```
 api/chat.ts                 Vercel Function: POST /api/chat
 api/adviser-reply.ts        Vercel Function: POST /api/adviser-reply (simulated adviser, v0)
+public/brand/               Logo (header, Apple touch icon) and favicon PNGs
 server/openai.ts            Shared OpenAI Responses call with a strict JSON schema
 server/aiChat.ts            AI mode: prompt, schema, guardrails (also served by the Vite dev middleware)
 server/adviserReply.ts      Simulated adviser reply: prompt, schema, guardrails

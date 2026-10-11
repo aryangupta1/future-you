@@ -1,5 +1,5 @@
 // Minimal OpenAI Responses API client for structured (JSON-schema) output.
-// Shared by every server endpoint; the key is passed in, never read here.
+// The fallback when Claude is unavailable (see ./ai.ts); the key is passed in, never read here.
 
 export const AI_MODEL = 'gpt-5-nano';
 

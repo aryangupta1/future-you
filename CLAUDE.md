@@ -1,6 +1,6 @@
 # Future You
 
-A v0 prototype of an AI digital advisor web app for $RUs, a financial advice firm, built for a University of Sydney group assessment (A3). The chat is scripted by default (reply chips). An opt-in **AI mode** sends free text to OpenAI `gpt-5-nano` through `/api/chat` (`server/aiChat.ts`), with Anthropic `claude-opus-5-5` as the fallback when OpenAI is unavailable (`server/ai.ts`). Everything else persists to localStorage; there is no other backend.
+A v0 prototype of an AI digital advisor web app for $RUs, a financial advice firm, built for a University of Sydney group assessment (A3). The chat is scripted by default (reply chips). An opt-in **AI mode** sends free text to Anthropic `claude-opus-5-5` through `/api/chat` (`server/aiChat.ts`), with OpenAI `gpt-5-nano` as the fallback when Claude is unavailable (`server/ai.ts`). Everything else persists to localStorage; there is no other backend.
 
 ## Commands
 
@@ -9,7 +9,7 @@ npm run dev      # http://localhost:5173
 npm run build    # tsc -b then vite build. Run this before calling any change done.
 ```
 
-`OPENAI_API_KEY` and `ANTHROPIC_API_KEY` live in `.env` (gitignored). Never expose them to the browser: no `VITE_` prefix, and no model calls from `src/`.
+`ANTHROPIC_API_KEY` (or `API_KEY`) and `OPENAI_API_KEY` live in `.env` (gitignored). Never expose them to the browser: no `VITE_` prefix, and no model calls from `src/`.
 
 There is no test suite. Verify behaviour in the browser: press **D** for the dev panel, and check the console for `validateFlow()` errors.
 

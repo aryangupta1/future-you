@@ -1,5 +1,5 @@
-// Anthropic Claude client for structured (JSON-schema) output. Used as the
-// fallback when OpenAI is unavailable (see ./ai.ts). The key is passed in,
+// Anthropic Claude client for structured (JSON-schema) output. The primary
+// provider; OpenAI is the fallback (see ./ai.ts). The key is passed in,
 // never read here.
 
 import Anthropic from '@anthropic-ai/sdk';

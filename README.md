@@ -2,7 +2,7 @@
 
 A web app for $RUs with an AI digital advisor. People ask money questions anonymously, build a small plan, and talk to a licensed human adviser when they choose.
 
-**This is v0.** By default the chat is fully hardcoded: the user taps reply chips. An optional **AI mode** (a toggle in the chat header) adds free-text questions answered by OpenAI `gpt-5-nano` (falling back to Anthropic `claude-opus-5-5` when OpenAI is unavailable) through a small server endpoint, behind the same guardrails as the scripted chat (see [AI mode](#ai-mode)). Sign-in, email, bookings and adviser messages are mocks and are labelled "v0" in the UI. All scripted conversation content lives in data files.
+**This is v0.** By default the chat is fully hardcoded: the user taps reply chips. An optional **AI mode** (a toggle in the chat header) adds free-text questions answered by Anthropic `claude-opus-5-5` (falling back to OpenAI `gpt-5-nano` when Claude is unavailable) through a small server endpoint, behind the same guardrails as the scripted chat (see [AI mode](#ai-mode)). Sign-in, email, bookings and adviser messages are mocks and are labelled "v0" in the UI. All scripted conversation content lives in data files.
 
 ## Run it
 
@@ -12,7 +12,7 @@ npm run dev      # http://localhost:5173
 npm run build    # type-checks (tsc -b), then builds to dist/
 ```
 
-AI mode needs `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` in `.env` (local) or in the Vercel project's environment variables (deployed). OpenAI answers first. If it has no key, can't be reached, returns an error (e.g. out of credits) or sends an unreadable answer, the same request goes to Claude. Without either key, the toggle still appears and the chat shows a clear "not configured" error.
+AI mode needs `ANTHROPIC_API_KEY` (or `API_KEY`) and/or `OPENAI_API_KEY` in `.env` (local) or in the Vercel project's environment variables (deployed). Claude answers first. If it has no key, can't be reached, returns an error, declines or sends an unreadable answer, the same request goes to OpenAI. Without either key, the toggle still appears and the chat shows a clear "not configured" error.
 
 Requires Node 20+. Stack: Vite 6, React 18, TypeScript, Tailwind CSS 4 and React Router 6.
 
@@ -49,7 +49,7 @@ Product context (persona, the four engagement measures, the phases) is in `docs/
 api/chat.ts                 Vercel Function: POST /api/chat
 api/adviser-reply.ts        Vercel Function: POST /api/adviser-reply (simulated adviser, v0)
 public/brand/               Logo (header, Apple touch icon) and favicon PNGs
-server/ai.ts                Provider choice: OpenAI first, Claude fallback
+server/ai.ts                Provider choice: Claude first, OpenAI fallback
 server/openai.ts            OpenAI Responses call with a strict JSON schema
 server/anthropic.ts         Claude Messages call (structured output, low effort)
 server/aiChat.ts            AI mode: prompt, schema, guardrails (also served by the Vite dev middleware)

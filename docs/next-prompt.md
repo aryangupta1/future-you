@@ -9,11 +9,11 @@ _Written 2026-10-11 at the end of the session. Overwrite this file at the end of
 - **AI mode** (toggle in the chat header) and the simulated adviser reply (`server/adviserReply.ts`):
   - Server code: `server/aiChat.ts`, `api/chat.ts`, `api/adviser-reply.ts`, and the middleware in `vite.config.ts`.
   - Client code: `src/ai/` and `src/engine/guardrails.ts`. The README's "AI mode" section documents each guardrail.
-- **New this session: Claude fallback.**
-  - `server/ai.ts` tries OpenAI `gpt-5-nano` first (`server/openai.ts`). It falls back to Anthropic `claude-opus-5-5` (`server/anthropic.ts`, `@anthropic-ai/sdk`) when OpenAI has no key, can't be reached, returns an error status or sends an unreadable answer.
+- **New this session: Claude is the primary provider.**
+  - `server/ai.ts` tries Anthropic `claude-opus-5-5` first (`server/anthropic.ts`, `@anthropic-ai/sdk`). It falls back to OpenAI `gpt-5-nano` (`server/openai.ts`) when Claude has no key, can't be reached, returns an error status, declines or sends an unreadable answer. The user chose Claude as primary for reliability.
   - The Claude call uses structured output (`betaJSONSchemaOutputFormat`), `effort: 'low'`, and the server-side refusal fallback (`fallbacks: 'default'`).
   - Handlers take `{ openai, anthropic }` keys from `OPENAI_API_KEY` and `ANTHROPIC_API_KEY || API_KEY`. The user's key is named `API_KEY` in Vercel. The guardrails didn't change and run on either provider's answer.
-  - **The OpenAI account is out of credits** (429 `insufficient_quota`), so in practice Claude answers every request right now.
+  - **The OpenAI account is out of credits** (429 `insufficient_quota`), so the fallback won't help until it's topped up.
 - The UI follows the SRU's brand kit (v1.1). Tokens are in `src/index.css`, and the README has a token table. The logo and favicon are in `public/brand/`.
 - The booking calendar is on `/talk/details` (`BookingCalendar.tsx`, `engine/slots.ts`).
 
@@ -28,14 +28,14 @@ _Written 2026-10-11 at the end of the session. Overwrite this file at the end of
 ## Suggested next steps
 
 1. With `API_KEY` saved in `.env`, check AI mode locally with `npm run dev`.
-2. Top up OpenAI or make Claude the primary provider. The latter means swapping the order in `server/ai.ts`.
+2. Top up OpenAI so the fallback works.
 3. Add basic protection on `/api/chat`: per-IP rate limiting and an origin check.
 4. Write an evaluation script with about 20 questions (sourced facts, personal advice, distress, off-topic, prompt injection). Run it against both providers.
 5. Feature 7: add a first-home specialist handover from `super-fhss` (story C6).
 
 ## Open questions for the team
 
-- Which provider should be primary? Claude Opus 5.5 costs much more per token than gpt-5-nano.
+- Claude Opus 5.5 costs much more per token than gpt-5-nano. If cost matters for the pilot, `CLAUDE_MODEL` in `server/anthropic.ts` could move to `claude-haiku-5-5`.
 - **Brand name:** the brand kit writes "SRU's", while the app copy says "$RUs".
 - The booking form asks for an optional email. CLAUDE.md says email is offered "only when saving a plan". Confirm that's OK.
 - **Deck correction needed:** slide 9's "1 in 5 self-employed … (ASFA, 2023)" should be ASFA March 2018: 19% of all self-employed have no super, compared with 8% of employees.

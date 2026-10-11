@@ -1,6 +1,6 @@
 // Server side of AI mode. Runs in the Vercel function (api/chat.ts) and in the
-// Vite dev middleware (vite.config.ts). OpenAI answers by default and Claude
-// takes over when OpenAI is unavailable (server/ai.ts). The keys stay on the
+// Vite dev middleware (vite.config.ts). Claude answers by default and OpenAI
+// takes over when Claude is unavailable (server/ai.ts). The keys stay on the
 // server; they never reach the browser.
 //
 // Guardrails, in order:

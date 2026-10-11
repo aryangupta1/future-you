@@ -1,6 +1,6 @@
-// Picks the model provider for every server endpoint: OpenAI first, Claude
-// when OpenAI is unavailable (no key, unreachable, an error status or an
-// unreadable answer). Guardrails live in the callers and apply to both.
+// Picks the model provider for every server endpoint: Claude first, OpenAI
+// when Claude is unavailable (no key, unreachable, an error status, a refusal
+// or an unreadable answer). Guardrails live in the callers and apply to both.
 
 import { callClaude } from './anthropic.js';
 import { callStructured as callOpenAI, type StructuredInput, type StructuredResult } from './openai.js';
@@ -22,11 +22,11 @@ export async function callStructured<T>(opts: {
 }): Promise<StructuredResult<T>> {
   const { keys, ...rest } = opts;
   let result: StructuredResult<T> | undefined;
-  if (keys.openai) {
-    result = await callOpenAI<T>({ apiKey: keys.openai, ...rest });
-    if (result.ok || !keys.anthropic) return result;
-    console.warn('[ai] OpenAI unavailable, falling back to Claude.');
+  if (keys.anthropic) {
+    result = await callClaude<T>({ apiKey: keys.anthropic, ...rest });
+    if (result.ok || !keys.openai) return result;
+    console.warn('[ai] Claude unavailable, falling back to OpenAI.');
   }
-  if (keys.anthropic) return callClaude<T>({ apiKey: keys.anthropic, ...rest });
+  if (keys.openai) return callOpenAI<T>({ apiKey: keys.openai, ...rest });
   return result ?? { ok: false, status: 500, message: NO_KEY_MESSAGE };
 }

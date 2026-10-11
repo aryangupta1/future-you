@@ -7,7 +7,7 @@ import { callStructured as callOpenAI, type StructuredInput, type StructuredResu
 
 export type AiKeys = { openai?: string; anthropic?: string };
 
-export const NO_KEY_MESSAGE = 'AI mode is not configured: set OPENAI_API_KEY or ANTHROPIC_API_KEY on the server.';
+export const NO_KEY_MESSAGE = 'AI mode is not configured: set OPENAI_API_KEY or ANTHROPIC_API_KEY (or API_KEY) on the server.';
 
 export function hasAiKey(keys: AiKeys) {
   return Boolean(keys.openai || keys.anthropic);

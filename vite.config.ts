@@ -51,6 +51,6 @@ function aiApi(keys: AiKeys): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
-    plugins: [react(), tailwindcss(), aiApi({ openai: env.OPENAI_API_KEY, anthropic: env.ANTHROPIC_API_KEY })],
+    plugins: [react(), tailwindcss(), aiApi({ openai: env.OPENAI_API_KEY, anthropic: env.ANTHROPIC_API_KEY || env.API_KEY })],
   };
 });

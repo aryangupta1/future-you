@@ -8,7 +8,7 @@ export async function POST(request: Request): Promise<Response> {
   const body = await request.json().catch(() => null);
   const { status, data } = await handleAdviserReply(body, {
     openai: process.env.OPENAI_API_KEY,
-    anthropic: process.env.ANTHROPIC_API_KEY,
+    anthropic: process.env.ANTHROPIC_API_KEY || process.env.API_KEY,
   });
   return Response.json(data, { status });
 }

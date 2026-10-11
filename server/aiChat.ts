@@ -1,6 +1,7 @@
 // Server side of AI mode. Runs in the Vercel function (api/chat.ts) and in the
-// Vite dev middleware (vite.config.ts). The OpenAI key is only ever read here;
-// it never reaches the browser.
+// Vite dev middleware (vite.config.ts). OpenAI answers by default and Claude
+// takes over when OpenAI is unavailable (server/ai.ts). The keys stay on the
+// server; they never reach the browser.
 //
 // Guardrails, in order:
 // 1. Validate and trim the request.
@@ -16,7 +17,7 @@
 import { sources } from '../src/content/sources.js';
 import { AI_LIMITS, containsFigures, detectDistress, detectPersonalAdvice } from '../src/engine/guardrails.js';
 import type { AiAnswer, AiRequest, AiResponse, AiTurn } from '../src/ai/types.js';
-import { callStructured } from './openai.js';
+import { callStructured, hasAiKey, NO_KEY_MESSAGE, type AiKeys } from './ai.js';
 
 type SourceId = keyof typeof sources;
 const SOURCE_IDS = Object.keys(sources) as SourceId[];
@@ -94,16 +95,14 @@ function parseRequest(body: unknown): AiRequest | string {
   return { flow: b.flow, question: b.question.trim(), history };
 }
 
-export async function handleChat(body: unknown, apiKey: string | undefined): Promise<{ status: number; data: AiResponse }> {
+export async function handleChat(body: unknown, keys: AiKeys): Promise<{ status: number; data: AiResponse }> {
   const req = parseRequest(body);
   if (typeof req === 'string') return { status: 400, data: { type: 'error', message: req } };
 
   // Guardrail 2: distress never goes to the model.
   if (detectDistress(req.question)) return { status: 200, data: { type: 'distress' } };
 
-  if (!apiKey) {
-    return { status: 500, data: { type: 'error', message: 'AI mode is not configured: OPENAI_API_KEY is missing on the server.' } };
-  }
+  if (!hasAiKey(keys)) return { status: 500, data: { type: 'error', message: NO_KEY_MESSAGE } };
 
   const personal = detectPersonalAdvice(req.question);
   const instructions = [
@@ -118,7 +117,7 @@ export async function handleChat(body: unknown, apiKey: string | undefined): Pro
     .join('\n\n');
 
   const result = await callStructured<ModelAnswer>({
-    apiKey,
+    keys,
     instructions,
     input: [
       ...req.history.map((t) => ({ role: t.role, content: t.text })),
@@ -134,6 +133,7 @@ export async function handleChat(body: unknown, apiKey: string | undefined): Pro
   const kind: AiAnswer['kind'] = personal ? 'personalAdvice' : answer.kind;
   const cited = [...new Set(answer.sourceIds)]
     .filter((id): id is SourceId => (ANSWER_SOURCE_IDS as string[]).includes(id))
+    .slice(0, 3)
     .map((id) => sources[id]);
   // Keep bubbles chat-sized even when the model ignores the length rule.
   const reply = (kind === 'offTopic' ? OFF_TOPIC_REPLY : answer.reply)

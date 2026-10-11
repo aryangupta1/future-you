@@ -3,18 +3,19 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { handleChat } from './server/aiChat.js';
 import { handleAdviserReply } from './server/adviserReply.js';
+import type { AiKeys } from './server/ai.js';
 
-type Handler = (body: unknown, apiKey: string | undefined) => Promise<{ status: number; data: unknown }>;
+type Handler = (body: unknown, keys: AiKeys) => Promise<{ status: number; data: unknown }>;
 
 // Serves the /api routes during `npm run dev` and `npm run preview`, mirroring
-// the Vercel functions in api/. The key comes from .env and stays on the
-// server (it has no VITE_ prefix, so it is never bundled).
+// the Vercel functions in api/. The keys come from .env and stay on the
+// server (they have no VITE_ prefix, so they are never bundled).
 const routes: Record<string, Handler> = {
   '/api/chat': handleChat,
   '/api/adviser-reply': handleAdviserReply,
 };
 
-function aiApi(apiKey: string | undefined): Plugin {
+function aiApi(keys: AiKeys): Plugin {
   const middleware = (req: any, res: any, next: () => void) => {
     const handler = routes[req.url];
     if (!handler) return next();
@@ -36,7 +37,7 @@ function aiApi(apiKey: string | undefined): Plugin {
       } catch {
         /* handled by handleChat */
       }
-      const { status, data } = await handler(body, apiKey);
+      const { status, data } = await handler(body, keys);
       send(status, data);
     });
   };
@@ -50,6 +51,6 @@ function aiApi(apiKey: string | undefined): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
-    plugins: [react(), tailwindcss(), aiApi(env.OPENAI_API_KEY)],
+    plugins: [react(), tailwindcss(), aiApi({ openai: env.OPENAI_API_KEY, anthropic: env.ANTHROPIC_API_KEY })],
   };
 });

@@ -11,7 +11,7 @@
 
 import { AI_LIMITS, containsFigures, detectDistress } from '../src/engine/guardrails.js';
 import type { AdviserReplyRequest, AdviserReplyResponse, AiTurn } from '../src/ai/types.js';
-import { callStructured } from './openai.js';
+import { callStructured, hasAiKey, NO_KEY_MESSAGE, type AiKeys } from './ai.js';
 
 const MAX_MESSAGES = 12;
 
@@ -79,11 +79,11 @@ function inventsFigures(reply: string, clientText: string) {
 
 export async function handleAdviserReply(
   body: unknown,
-  apiKey: string | undefined,
+  keys: AiKeys,
 ): Promise<{ status: number; data: AdviserReplyResponse }> {
   const req = parse(body);
   if (typeof req === 'string') return { status: 400, data: { type: 'error', message: req } };
-  if (!apiKey) return { status: 500, data: { type: 'error', message: 'OPENAI_API_KEY is missing on the server.' } };
+  if (!hasAiKey(keys)) return { status: 500, data: { type: 'error', message: NO_KEY_MESSAGE } };
 
   const clientText = req.messages.filter((m) => m.from === 'client').map((m) => m.text).join('\n');
   const context = [
@@ -101,7 +101,7 @@ export async function handleAdviserReply(
   let reply: ModelReply | undefined;
   for (let attempt = 0; attempt < 2 && !reply; attempt++) {
     const result = await callStructured<ModelReply>({
-      apiKey,
+      keys,
       instructions: `${INSTRUCTIONS}\n\n${context}${attempt ? '\n\nYour previous draft quoted a figure. Write it again with no numbers at all.' : ''}`,
       input,
       name: 'adviser_reply',

@@ -2,7 +2,7 @@
 
 A web app for $RUs with an AI digital advisor. People ask money questions anonymously, build a small plan, and talk to a licensed human adviser when they choose.
 
-**This is v0.** By default the chat is fully hardcoded: the user taps reply chips. An optional **AI mode** (a toggle in the chat header) adds free-text questions answered by OpenAI `gpt-5-nano` through a small server endpoint, behind the same guardrails as the scripted chat (see [AI mode](#ai-mode)). Sign-in, email, bookings and adviser messages are mocks and are labelled "v0" in the UI. All scripted conversation content lives in data files.
+**This is v0.** By default the chat is fully hardcoded: the user taps reply chips. An optional **AI mode** (a toggle in the chat header) adds free-text questions answered by OpenAI `gpt-5-nano` (falling back to Anthropic `claude-opus-5-5` when OpenAI is unavailable) through a small server endpoint, behind the same guardrails as the scripted chat (see [AI mode](#ai-mode)). Sign-in, email, bookings and adviser messages are mocks and are labelled "v0" in the UI. All scripted conversation content lives in data files.
 
 ## Run it
 
@@ -12,7 +12,7 @@ npm run dev      # http://localhost:5173
 npm run build    # type-checks (tsc -b), then builds to dist/
 ```
 
-AI mode needs `OPENAI_API_KEY` in `.env` (local) or in the Vercel project's environment variables (deployed). Without it, the toggle still appears and the chat shows a clear "not configured" error.
+AI mode needs `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` in `.env` (local) or in the Vercel project's environment variables (deployed). OpenAI answers first. If it has no key, can't be reached, returns an error (e.g. out of credits) or sends an unreadable answer, the same request goes to Claude. Without either key, the toggle still appears and the chat shows a clear "not configured" error.
 
 Requires Node 20+. Stack: Vite 6, React 18, TypeScript, Tailwind CSS 4 and React Router 6.
 
@@ -49,7 +49,9 @@ Product context (persona, the four engagement measures, the phases) is in `docs/
 api/chat.ts                 Vercel Function: POST /api/chat
 api/adviser-reply.ts        Vercel Function: POST /api/adviser-reply (simulated adviser, v0)
 public/brand/               Logo (header, Apple touch icon) and favicon PNGs
-server/openai.ts            Shared OpenAI Responses call with a strict JSON schema
+server/ai.ts                Provider choice: OpenAI first, Claude fallback
+server/openai.ts            OpenAI Responses call with a strict JSON schema
+server/anthropic.ts         Claude Messages call (structured output, low effort)
 server/aiChat.ts            AI mode: prompt, schema, guardrails (also served by the Vite dev middleware)
 server/adviserReply.ts      Simulated adviser reply: prompt, schema, guardrails
 src/
@@ -190,7 +192,7 @@ The same rules as the scripted chat, enforced in code where possible:
 - Distress in her messages appends the National Debt Helpline line from the support card.
 - At most one new plan step, which must be Robyn's own action. Existing steps are never changed.
 
-Limits: questions up to 600 characters, the last 10 turns as context, 45-second timeout, `store: false` on the OpenAI request. There is no rate limiting or auth on `/api/chat` yet, so add both before a public pilot.
+Limits: questions up to 600 characters, the last 10 turns as context, 45-second timeout, `store: false` on the OpenAI request. The guardrails run on the parsed answer, so they apply whichever provider replied. There is no rate limiting or auth on `/api/chat` yet, so add both before a public pilot.
 
 ## Out of scope for v0
 

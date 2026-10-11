@@ -3,7 +3,7 @@
 
 export const AI_MODEL = 'gpt-5-nano';
 
-type Input = { role: 'user' | 'assistant'; content: string }[];
+export type StructuredInput = { role: 'user' | 'assistant'; content: string }[];
 
 export type StructuredResult<T> = { ok: true; value: T } | { ok: false; status: number; message: string };
 
@@ -18,7 +18,7 @@ function outputText(json: any): string | undefined {
 export async function callStructured<T>(opts: {
   apiKey: string;
   instructions: string;
-  input: Input;
+  input: StructuredInput;
   name: string;
   schema: object;
 }): Promise<StructuredResult<T>> {

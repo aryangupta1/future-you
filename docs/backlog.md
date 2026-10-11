@@ -5,7 +5,7 @@ The ranked feature list from deck slide 18. Story codes: G Gladstone, A Aryan, C
 | # | Feature | Stories | MoSCoW | Stage | In app |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Told upfront it's an AI, what it covers, and what happens to my data | G3 | Must | Sprint 1 | Yes: `start` and `data` nodes |
-| 2 | Ask anything without judgement, at any hour, with nothing to fill in first | G1, C3, C1 | Must | Sprint 1 | Yes: anonymous chip chat, plus opt-in AI mode (free text, gpt-5-nano) |
+| 2 | Ask anything without judgement, at any hour, with nothing to fill in first | G1, C3, C1 | Must | Sprint 1 | Yes: anonymous chip chat, plus opt-in AI mode (free text, gpt-5-nano with a Claude fallback) |
 | 3 | Short, direct answers with the reasoning and a verified source | G2, A3 | Must | Sprint 1–2 | Yes: `why` and `sources` on every answer |
 | 4 | Monitored like a human adviser; told if an answer was wrong | A6, A4 | Must / Should | Sprint 1–2 | Yes: monitoring log at `/staff`; correction notice with "What $RUs is doing" |
 | 5 | Pick up where I left off, with check-ins that follow my income | G4, A1 | Must / Should | Sprint 2 | Yes: saved plan, Welcome back card, check-in preference, "A payment just landed" |

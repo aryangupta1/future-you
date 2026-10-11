@@ -74,3 +74,10 @@ Append-only. Add one entry per session at the end of the file: the date, what ch
   - `index.html` links the PNG favicon and uses the logo as the Apple touch icon. Removed the old `public/favicon.svg`.
   - README documents both files.
 - Build passes. Checked in Chrome at desktop width and at 390px (same-origin iframe): the logo renders in the header with no horizontal overflow.
+
+## 2026-10-11 (Claude fallback for AI mode)
+
+- AI mode and the simulated adviser reply now fall back to Anthropic `claude-opus-5-5` when OpenAI is unavailable: no key, network failure, an error status (the OpenAI account currently returns 429 `insufficient_quota`) or an unreadable answer.
+  - `server/ai.ts` picks the provider. `server/anthropic.ts` calls Claude through `@anthropic-ai/sdk` (structured output, `effort: low`, server-side refusal fallback).
+  - Handlers take `{ openai, anthropic }` keys, read from `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` in `api/*.ts` and `vite.config.ts`. Guardrails are unchanged and run on either provider's answer. Cited sources are capped at 3 in code, because Claude's schema drops `maxItems`.
+- Build passes, and no keys appear in the bundle. Checked on the dev server with bad keys: OpenAI fails, the request falls through to Claude, and the error surfaces cleanly. A real Claude answer was **not** checked, because `.env` on disk had no `ANTHROPIC_API_KEY`.
